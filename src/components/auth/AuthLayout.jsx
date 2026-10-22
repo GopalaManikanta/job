@@ -68,7 +68,7 @@ export default function AuthLayout({
         {/* Live Status Pill */}
         <div className="hidden md:flex items-center gap-2 bg-black/40 backdrop-blur-xl border border-white/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-white shadow-xl">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400" />
-          <span>45,000+ Verified Live Jobs</span>
+          <span>Talent Network &bull; Initial Launch Phase</span>
         </div>
       </header>
 
