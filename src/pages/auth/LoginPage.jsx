@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, Zap, Building2, User } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { useAuth } from '../../context/AuthContext'
-import AuthLayout from '../../components/auth/AuthLayout'
+import AuthLayout from './AuthLayout'
 
 export default function LoginPage() {
   const [role, setRole] = useState('candidate')

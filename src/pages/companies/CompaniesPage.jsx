@@ -25,8 +25,8 @@ import {
   ChevronRight
 } from 'lucide-react'
 
-import DashboardHeader from '../../components/dashboard/DashboardHeader'
-import CompanyModal from '../../components/companies/CompanyModal'
+import DashboardHeader from '../../components/DashboardHeader'
+import CompanyModal from './CompanyModal'
 
 const INDUSTRIES = [
   'All Industries',

@@ -21,11 +21,12 @@ import {
   Trash2
 } from 'lucide-react'
 
-import DashboardHeader from '../components/dashboard/DashboardHeader'
-import StatCard from '../components/dashboard/StatCard'
-import DashboardStats from '../components/dashboard/DashboardStats'
-import QuickActions from '../components/dashboard/QuickActions'
-import RecentActivities from '../components/dashboard/RecentActivities'
+import DashboardHeader from '../components/DashboardHeader'
+import StatCard from '../components/StatCard'
+import DashboardStats from '../components/DashboardStats'
+import QuickActions from '../components/QuickActions'
+import RecentActivities from '../components/RecentActivities'
+import JobModal from './jobs/JobModal'
 
 export default function Dashboard() {
   const { user, logout } = useAuth()
@@ -48,57 +49,12 @@ export default function Dashboard() {
   const [showApplicationsModal, setShowApplicationsModal] = useState(false)
   const [showSavedModal, setShowSavedModal] = useState(false)
 
-  // New Job form state
-  const [newJobData, setNewJobData] = useState({
-    title: '',
-    company: user?.company || (user?.role === 'recruiter' ? 'Apex Cloud Systems' : 'Tech Innovators'),
-    category: 'Software & Cloud Engineering',
-    location: 'Hybrid - Bengaluru',
-    salary: '₹18 - ₹26 LPA',
-    type: 'Full-time',
-    description: ''
-  })
-
   const isCandidate = user?.role === 'candidate'
 
   const handleLogout = () => {
     logout()
     toast.info('Logged out successfully.')
     navigate('/login')
-  }
-
-  // Quick fill sample job template
-  const handleQuickFillJob = () => {
-    setNewJobData({
-      title: 'Senior Full Stack React Engineer',
-      company: user?.company || 'Apex Cloud Systems',
-      category: 'Software & Cloud Engineering',
-      location: 'Hybrid - Bengaluru, India',
-      salary: '₹22 - ₹30 LPA',
-      type: 'Full-time',
-      description: 'Looking for an experienced React & Node.js architect to lead core talent platform engineering.'
-    })
-  }
-
-  // Submit new job
-  const handleCreateJobSubmit = (e) => {
-    e.preventDefault()
-    if (!newJobData.title.trim()) {
-      toast.error('Please enter a job title')
-      return
-    }
-    addJob(newJobData)
-    toast.success(`Job "${newJobData.title}" posted successfully! Available to candidates in real-time.`)
-    setShowPostJobModal(false)
-    setNewJobData({
-      title: '',
-      company: user?.company || 'Apex Cloud Systems',
-      category: 'Software & Cloud Engineering',
-      location: 'Hybrid - Bengaluru',
-      salary: '₹18 - ₹26 LPA',
-      type: 'Full-time',
-      description: ''
-    })
   }
 
   // Candidate apply handler
@@ -167,7 +123,7 @@ export default function Dashboard() {
               {isCandidate ? (
                 <button
                   type="button"
-                  onClick={() => setShowExploreModal(true)}
+                  onClick={() => navigate('/jobs')}
                   className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs shadow-md shadow-blue-500/20 flex items-center gap-2 transition-all cursor-pointer transform hover:scale-[1.02]"
                 >
                   <Search className="w-4 h-4" />
@@ -221,6 +177,7 @@ export default function Dashboard() {
               icon={Briefcase}
               trend={`${metrics.totalJobs} Listings`}
               theme="blue"
+              onClick={() => navigate('/jobs')}
             />
             <StatCard
               title="Active Job Postings"
@@ -230,6 +187,7 @@ export default function Dashboard() {
               trend={`${metrics.activeJobPostings} Live`}
               theme="purple"
               isLive={metrics.activeJobPostings !== '0'}
+              onClick={() => navigate('/jobs')}
             />
             <StatCard
               title="Total Candidates"
@@ -275,7 +233,7 @@ export default function Dashboard() {
         <QuickActions
           user={user}
           onOpenPostJob={() => setShowPostJobModal(true)}
-          onOpenExploreJobs={() => setShowExploreModal(true)}
+          onOpenExploreJobs={() => navigate('/jobs')}
           onOpenApplications={() => setShowApplicationsModal(true)}
           onOpenSavedJobs={() => setShowSavedModal(true)}
           onOpenInterviews={() => toast.info('Interview Calendar: Synchronized with 0 scheduled calls currently.')}
@@ -300,130 +258,16 @@ export default function Dashboard() {
       {/* ========================================================= */}
       {/* MODAL 1: POST JOB MODAL (Recruiter)                      */}
       {/* ========================================================= */}
-      {showPostJobModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-purple-50 text-purple-600 border border-purple-200">
-                  <PlusCircle className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">Post New Job Requisition</h3>
-                  <p className="text-xs text-slate-500">Publish opening to candidate search in real-time</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowPostJobModal(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateJobSubmit} className="space-y-3.5">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Job Title *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Senior Full Stack React Engineer"
-                  value={newJobData.title}
-                  onChange={(e) => setNewJobData({ ...newJobData, title: e.target.value })}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-purple-500 focus:bg-white"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Company *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Company Name"
-                    value={newJobData.company}
-                    onChange={(e) => setNewJobData({ ...newJobData, company: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-purple-500 focus:bg-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Category</label>
-                  <select
-                    value={newJobData.category}
-                    onChange={(e) => setNewJobData({ ...newJobData, category: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-purple-500 focus:bg-white"
-                  >
-                    <option>Software & Cloud Engineering</option>
-                    <option>AI & Data Science</option>
-                    <option>Product Management & UX</option>
-                    <option>Cybersecurity & DevOps</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Location</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Hybrid - Bengaluru"
-                    value={newJobData.location}
-                    onChange={(e) => setNewJobData({ ...newJobData, location: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-purple-500 focus:bg-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Compensation</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. ₹20 - ₹28 LPA"
-                    value={newJobData.salary}
-                    onChange={(e) => setNewJobData({ ...newJobData, salary: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-purple-500 focus:bg-white"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Role Description</label>
-                <textarea
-                  rows={3}
-                  placeholder="Outline responsibilities and skills required..."
-                  value={newJobData.description}
-                  onChange={(e) => setNewJobData({ ...newJobData, description: e.target.value })}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-purple-500 focus:bg-white"
-                />
-              </div>
-
-              <div className="flex items-center justify-between pt-2">
-                <button
-                  type="button"
-                  onClick={handleQuickFillJob}
-                  className="text-xs font-semibold text-purple-600 hover:text-purple-800 underline cursor-pointer"
-                >
-                  ⚡ Auto-fill template
-                </button>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowPostJobModal(false)}
-                    className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold shadow-md cursor-pointer"
-                  >
-                    Publish Opening
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <JobModal
+        isOpen={showPostJobModal}
+        onClose={() => setShowPostJobModal(false)}
+        onSubmit={(formData) => {
+          addJob(formData)
+          toast.success(`Job requisition "${formData.title}" published! Available to candidates in real-time.`)
+          setShowPostJobModal(false)
+        }}
+        defaultCompany={user?.company || (user?.role === 'recruiter' ? 'Apex Cloud Systems' : 'Romaguera-Crona')}
+      />
 
       {/* ========================================================= */}
       {/* MODAL 2: EXPLORE JOBS MODAL (Candidate & Recruiter)       */}
@@ -473,7 +317,16 @@ export default function Dashboard() {
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <h4 className="text-sm font-bold text-slate-900">{job.title}</h4>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowExploreModal(false)
+                              navigate(`/jobs/${job.id}`)
+                            }}
+                            className="text-sm font-bold text-slate-900 hover:text-blue-600 transition-colors text-left cursor-pointer"
+                          >
+                            {job.title}
+                          </button>
                           <p className="text-xs font-semibold text-cyan-700 mt-0.5">{job.company}</p>
                         </div>
                         <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200">
@@ -538,6 +391,20 @@ export default function Dashboard() {
                   )
                 })
               )}
+            </div>
+
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span className="text-slate-400">Looking for advanced filters & table view?</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowExploreModal(false)
+                  navigate('/jobs')
+                }}
+                className="font-bold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
+              >
+                Go to Full Jobs Directory &rarr;
+              </button>
             </div>
           </div>
         </div>

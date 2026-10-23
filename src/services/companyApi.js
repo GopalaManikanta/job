@@ -79,7 +79,6 @@ export const mapApiToCompany = (apiUser, index = 0) => {
  * 1. GET ALL COMPANIES (visible in DevTools Network tab)
  */
 export const fetchCompaniesFromApi = async () => {
-  console.log('%c[Network API] GET ' + API_BASE_URL + ' (Initiated)', 'color: #06b6d4; font-weight: bold;')
   const response = await fetch(API_BASE_URL, {
     method: 'GET',
     headers: {
@@ -92,7 +91,6 @@ export const fetchCompaniesFromApi = async () => {
   }
 
   const data = await response.json()
-  console.log(`%c[Network API] GET ${API_BASE_URL} (200 OK - ${data.length} records)`, 'color: #10b981; font-weight: bold;', data)
   return data.map((item, idx) => mapApiToCompany(item, idx))
 }
 
@@ -102,7 +100,6 @@ export const fetchCompaniesFromApi = async () => {
 export const fetchCompanyByIdFromApi = async (id) => {
   const safeId = Number(id) >= 1 && Number(id) <= 10 ? id : 1
   const url = `${API_BASE_URL}/${safeId}`
-  console.log(`%c[Network API] GET ${url} (Initiated)`, 'color: #06b6d4; font-weight: bold;')
 
   const response = await fetch(url, {
     method: 'GET',
@@ -116,7 +113,6 @@ export const fetchCompanyByIdFromApi = async (id) => {
   }
 
   const data = await response.json()
-  console.log(`%c[Network API] GET ${url} (200 OK)`, 'color: #10b981; font-weight: bold;', data)
   return mapApiToCompany(data, Number(id) || 0)
 }
 
@@ -124,8 +120,6 @@ export const fetchCompanyByIdFromApi = async (id) => {
  * 3. POST CREATE COMPANY (visible in DevTools Network tab)
  */
 export const createCompanyApi = async (companyData) => {
-  console.log('%c[Network API] POST ' + API_BASE_URL + ' (Initiated)', 'color: #8b5cf6; font-weight: bold;', companyData)
-
   const payload = {
     name: companyData.contactPerson || companyData.name,
     email: companyData.email,
@@ -155,8 +149,6 @@ export const createCompanyApi = async (companyData) => {
   }
 
   const result = await response.json()
-  console.log('%c[Network API] POST ' + API_BASE_URL + ' (201 Created)', 'color: #10b981; font-weight: bold;', result)
-
   return {
     ...companyData,
     id: String(result.id || `comp_${Date.now()}`)
@@ -169,7 +161,6 @@ export const createCompanyApi = async (companyData) => {
 export const updateCompanyApi = async (id, companyData) => {
   const safeId = Number(id) >= 1 && Number(id) <= 10 ? id : 1
   const url = `${API_BASE_URL}/${safeId}`
-  console.log(`%c[Network API] PUT ${url} (Initiated)`, 'color: #8b5cf6; font-weight: bold;', companyData)
 
   const payload = {
     name: companyData.contactPerson || companyData.name,
@@ -199,9 +190,6 @@ export const updateCompanyApi = async (id, companyData) => {
     throw new Error(`API update company failed: HTTP ${response.status}`)
   }
 
-  const result = await response.json()
-  console.log(`%c[Network API] PUT ${url} (200 OK)`, 'color: #10b981; font-weight: bold;', result)
-
   return {
     ...companyData,
     id: String(id)
@@ -214,7 +202,6 @@ export const updateCompanyApi = async (id, companyData) => {
 export const deleteCompanyApi = async (id) => {
   const safeId = Number(id) >= 1 && Number(id) <= 10 ? id : 1
   const url = `${API_BASE_URL}/${safeId}`
-  console.log(`%c[Network API] DELETE ${url} (Initiated)`, 'color: #ef4444; font-weight: bold;')
 
   const response = await fetch(url, {
     method: 'DELETE',
@@ -227,6 +214,5 @@ export const deleteCompanyApi = async (id) => {
     throw new Error(`API delete company failed: HTTP ${response.status}`)
   }
 
-  console.log(`%c[Network API] DELETE ${url} (200 OK)`, 'color: #10b981; font-weight: bold;')
   return { success: true, id: String(id) }
 }

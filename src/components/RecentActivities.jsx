@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useDashboard } from '../../context/DashboardContext'
+import { useDashboard } from '../context/DashboardContext'
 import { Activity, Clock, Inbox, ShieldCheck } from 'lucide-react'
 
 const LIGHT_STATUS_COLORS = {

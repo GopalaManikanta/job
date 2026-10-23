@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Mail, Lock, ShieldCheck, ArrowLeft, ArrowRight, Loader2, CheckCircle2, KeyRound, Eye, EyeOff } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { useAuth } from '../../context/AuthContext'
-import AuthLayout from '../../components/auth/AuthLayout'
+import AuthLayout from './AuthLayout'
 
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState(1) // 1: Email, 2: OTP, 3: New Password, 4: Success

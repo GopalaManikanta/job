@@ -1,5 +1,5 @@
-import { useAuth } from '../../context/AuthContext'
-import { useDashboard } from '../../context/DashboardContext'
+import { useAuth } from '../context/AuthContext'
+import { useDashboard } from '../context/DashboardContext'
 import { BarChart3, PieChart, ShieldCheck, CheckCircle, Info } from 'lucide-react'
 
 export default function DashboardStats() {

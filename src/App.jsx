@@ -5,13 +5,15 @@ import 'react-toastify/dist/ReactToastify.css'
 import { AuthProvider } from './context/AuthContext'
 import { CompanyProvider } from './context/CompanyContext'
 import { DashboardProvider } from './context/DashboardContext'
-import ProtectedRoute from './components/auth/ProtectedRoute'
+import ProtectedRoute from './pages/auth/ProtectedRoute'
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
 import Dashboard from './pages/Dashboard'
 import CompaniesPage from './pages/companies/CompaniesPage'
 import CompanyDetailsPage from './pages/companies/CompanyDetailsPage'
+import JobsPage from './pages/jobs/JobsPage'
+import JobDetailsPage from './pages/jobs/JobDetailsPage'
 
 export default function App() {
   return (
@@ -31,6 +33,22 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/jobs"
+                element={
+                  <ProtectedRoute>
+                    <JobsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/jobs/:id"
+                element={
+                  <ProtectedRoute>
+                    <JobDetailsPage />
                   </ProtectedRoute>
                 }
               />

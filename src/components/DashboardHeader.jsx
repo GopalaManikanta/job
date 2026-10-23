@@ -83,6 +83,18 @@ export default function DashboardHeader({ user, onLogout }) {
           </Link>
 
           <Link
+            to="/jobs"
+            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
+              location.pathname.startsWith('/jobs')
+                ? 'bg-white text-cyan-700 shadow-xs'
+                : 'text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <Briefcase className="w-3.5 h-3.5 text-cyan-600" />
+            <span>Jobs</span>
+          </Link>
+
+          <Link
             to="/companies"
             className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
               location.pathname.startsWith('/companies')

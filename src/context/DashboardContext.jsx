@@ -12,13 +12,139 @@ const STORAGE_KEYS = {
   ACTIVITIES: 'job_portal_activities'
 }
 
+// Initial Real-time Enterprise Job Listings
+const INITIAL_JOBS = [
+  {
+    id: 'job_01',
+    title: 'Senior Cloud Architecture Lead',
+    company: 'Romaguera-Crona',
+    category: 'Software & Cloud Engineering',
+    type: 'Full-time',
+    experienceLevel: 'Senior Level',
+    salary: '₹28 - ₹38 LPA',
+    location: 'Hybrid - Bengaluru',
+    skills: ['AWS', 'Kubernetes', 'Golang', 'Terraform', 'Distributed Systems'],
+    deadline: '2026-11-25',
+    status: 'open',
+    description: 'Lead the architecture and design of our mission-critical enterprise cloud infrastructure. You will work closely with distributed engineering teams to ensure 99.99% service reliability and automated CI/CD deployments.',
+    responsibilities: 'Architect high-throughput cloud microservices, automate infrastructure provisioning using Terraform & Kubernetes, mentor junior engineers, and drive technical roadmaps.',
+    postedAt: '10:30 AM',
+    createdAt: new Date().toISOString(),
+    postedBy: 'recruiter@jobportal.com',
+    applicantsCount: 3
+  },
+  {
+    id: 'job_02',
+    title: 'AI & Computer Vision Engineer',
+    company: 'Deckow-Crist',
+    category: 'AI & Data Science',
+    type: 'Full-time',
+    experienceLevel: 'Mid Level',
+    salary: '₹22 - ₹32 LPA',
+    location: 'Hyderabad, India',
+    skills: ['Python', 'PyTorch', 'OpenCV', 'TensorFlow', 'MLOps'],
+    deadline: '2026-11-30',
+    status: 'open',
+    description: 'Join our cutting-edge AI research and product group building next-gen visual perception models and edge inference engines.',
+    responsibilities: 'Train deep learning models for object recognition, optimize model weights for low-power edge hardware, benchmark accuracy, and deploy production endpoints.',
+    postedAt: '11:15 AM',
+    createdAt: new Date().toISOString(),
+    postedBy: 'recruiter@jobportal.com',
+    applicantsCount: 5
+  },
+  {
+    id: 'job_03',
+    title: 'Lead Frontend React Architect',
+    company: 'Apex Cloud Systems',
+    category: 'Software & Cloud Engineering',
+    type: 'Remote',
+    experienceLevel: 'Lead / Principal',
+    salary: '₹30 - ₹42 LPA',
+    location: 'Remote - India',
+    skills: ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'GraphQL'],
+    deadline: '2026-12-05',
+    status: 'open',
+    description: 'We are seeking an exceptional frontend leader to drive frontend architecture, state synchronization, and design system performance across our global suite of SaaS platforms.',
+    responsibilities: 'Drive architectural decisions for React frontend applications, maintain component libraries, optimize web vitals, and coordinate frontend releases with backend APIs.',
+    postedAt: '09:45 AM',
+    createdAt: new Date().toISOString(),
+    postedBy: 'recruiter@jobportal.com',
+    applicantsCount: 2
+  },
+  {
+    id: 'job_04',
+    title: 'Principal Product Designer (UX/UI)',
+    company: 'Robel-Corkery',
+    category: 'Product Management & UX',
+    type: 'Full-time',
+    experienceLevel: 'Senior Level',
+    salary: '₹20 - ₹28 LPA',
+    location: 'Pune, India',
+    skills: ['Figma', 'Design Systems', 'User Research', 'Wireframing', 'Prototyping'],
+    deadline: '2026-11-20',
+    status: 'open',
+    description: 'Craft intuitive, elegant, and frictionless user experiences for millions of active professionals utilizing our talent analytics platform.',
+    responsibilities: 'Conduct generative user interviews, build pixel-perfect Figma components, prototype user flows, and partner closely with engineers to ensure fidelity.',
+    postedAt: 'Yesterday',
+    createdAt: new Date().toISOString(),
+    postedBy: 'recruiter@jobportal.com',
+    applicantsCount: 4
+  },
+  {
+    id: 'job_05',
+    title: 'DevSecOps & Site Reliability Engineer',
+    company: 'Keebler LLC',
+    category: 'Cybersecurity & DevOps',
+    type: 'Full-time',
+    experienceLevel: 'Mid Level',
+    salary: '₹18 - ₹26 LPA',
+    location: 'Chennai, India',
+    skills: ['Docker', 'Kubernetes', 'CI/CD', 'Linux', 'Prometheus'],
+    deadline: '2026-11-15',
+    status: 'open',
+    description: 'Ensure rock-solid security postures, automated patch management, and telemetry observability across hybrid cloud environments.',
+    responsibilities: 'Maintain Kubernetes clusters, configure automated Prometheus & Grafana alerts, conduct vulnerability scans, and implement zero-trust access controls.',
+    postedAt: '2 days ago',
+    createdAt: new Date().toISOString(),
+    postedBy: 'recruiter@jobportal.com',
+    applicantsCount: 1
+  },
+  {
+    id: 'job_06',
+    title: 'Enterprise Data Platform Architect',
+    company: 'Considine-Lockman',
+    category: 'AI & Data Science',
+    type: 'Contract',
+    experienceLevel: 'Lead / Principal',
+    salary: '₹32 - ₹45 LPA',
+    location: 'Hybrid - Bengaluru',
+    skills: ['Snowflake', 'Apache Spark', 'Airflow', 'Python', 'SQL'],
+    deadline: '2026-10-31',
+    status: 'closed',
+    description: 'Architect scalable data lakehouses and automated ETL pipelines handling multi-terabyte data streams with sub-second analytical querying.',
+    responsibilities: 'Design lakehouse schemas, orchestrate daily Airflow DAGs, enforce data governance policies, and optimize Snowflake compute clusters.',
+    postedAt: '3 days ago',
+    createdAt: new Date().toISOString(),
+    postedBy: 'recruiter@jobportal.com',
+    applicantsCount: 8
+  }
+]
+
 // Storage helpers
 const readStorage = (key) => {
   try {
     const raw = localStorage.getItem(key)
-    return raw ? JSON.parse(raw) : []
-  } catch {
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+    if (key === STORAGE_KEYS.JOBS) {
+      localStorage.setItem(key, JSON.stringify(INITIAL_JOBS))
+      return INITIAL_JOBS
+    }
     return []
+  } catch {
+    return key === STORAGE_KEYS.JOBS ? INITIAL_JOBS : []
   }
 }
 
@@ -82,14 +208,24 @@ export function DashboardProvider({ children }) {
       const newJob = {
         id: `job_${Date.now()}`,
         title: jobData.title.trim(),
-        company: jobData.company?.trim() || user?.company || 'Enterprise Partner',
+        company: jobData.company?.trim() || user?.company || 'Apex Cloud Systems',
         category: jobData.category || 'Software & Cloud Engineering',
-        location: jobData.location?.trim() || 'Hybrid - Bengaluru',
-        salary: jobData.salary?.trim() || '₹15 - ₹25 LPA',
         type: jobData.type || 'Full-time',
+        experienceLevel: jobData.experienceLevel || 'Mid Level',
+        salary: jobData.salary?.trim() || '₹18 - ₹26 LPA',
+        location: jobData.location?.trim() || 'Hybrid - Bengaluru',
+        skills: Array.isArray(jobData.skills)
+          ? jobData.skills
+          : typeof jobData.skills === 'string'
+          ? jobData.skills.split(',').map((s) => s.trim()).filter(Boolean)
+          : ['React', 'TypeScript', 'Node.js'],
+        deadline: jobData.deadline || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        status: jobData.status || 'open',
         description: jobData.description?.trim() || 'Exciting opportunity to build cutting-edge systems with an innovative team.',
-        status: 'active',
+        responsibilities: jobData.responsibilities?.trim() || 'Architect scalable web applications, collaborate with cross-functional teams, and maintain high standards of software quality.',
         postedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        createdAt: new Date().toISOString(),
+        postedBy: user?.email || 'recruiter@jobportal.com',
         applicantsCount: 0
       }
 
@@ -103,7 +239,7 @@ export function DashboardProvider({ children }) {
         title: `${newJob.company} published: ${newJob.title}`,
         subtitle: `${newJob.location} • ${newJob.salary}`,
         time: 'Just now',
-        status: 'In Review',
+        status: 'Open',
         logo: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(newJob.company)}`
       })
 
@@ -111,6 +247,114 @@ export function DashboardProvider({ children }) {
       return newJob
     },
     [user, logActivity]
+  )
+
+  // Action: Edit existing job (Recruiter)
+  const editJob = useCallback(
+    (jobId, jobData) => {
+      const currentJobs = readStorage(STORAGE_KEYS.JOBS)
+      const idx = currentJobs.findIndex((j) => String(j.id) === String(jobId))
+      if (idx === -1) return { success: false, message: 'Job not found' }
+
+      const updatedJob = {
+        ...currentJobs[idx],
+        ...jobData,
+        id: String(jobId),
+        skills: Array.isArray(jobData.skills)
+          ? jobData.skills
+          : typeof jobData.skills === 'string'
+          ? jobData.skills.split(',').map((s) => s.trim()).filter(Boolean)
+          : currentJobs[idx].skills,
+        updatedAt: new Date().toISOString()
+      }
+
+      currentJobs[idx] = updatedJob
+      writeStorage(STORAGE_KEYS.JOBS, currentJobs)
+      setJobs(currentJobs)
+
+      logActivity({
+        id: `act_${Date.now()}`,
+        type: 'jobs',
+        title: `${updatedJob.company} updated: ${updatedJob.title}`,
+        subtitle: `${updatedJob.location} • ${updatedJob.salary}`,
+        time: 'Just now',
+        status: updatedJob.status === 'open' ? 'Open' : 'Closed',
+        logo: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(updatedJob.company)}`
+      })
+
+      broadcastSync()
+      return { success: true, job: updatedJob }
+    },
+    [logActivity]
+  )
+
+  // Action: Delete job (Recruiter)
+  const deleteJob = useCallback(
+    (jobId) => {
+      const currentJobs = readStorage(STORAGE_KEYS.JOBS)
+      const jobToDelete = currentJobs.find((j) => String(j.id) === String(jobId))
+      const filteredJobs = currentJobs.filter((j) => String(j.id) !== String(jobId))
+      writeStorage(STORAGE_KEYS.JOBS, filteredJobs)
+      setJobs(filteredJobs)
+
+      // Clean up saved references
+      const currentSaved = readStorage(STORAGE_KEYS.SAVED_JOBS)
+      const filteredSaved = currentSaved.filter((s) => String(s.jobId) !== String(jobId))
+      writeStorage(STORAGE_KEYS.SAVED_JOBS, filteredSaved)
+      setSavedJobs(filteredSaved)
+
+      if (jobToDelete) {
+        logActivity({
+          id: `act_${Date.now()}`,
+          type: 'jobs',
+          title: `Requisition removed: ${jobToDelete.title}`,
+          subtitle: `${jobToDelete.company}`,
+          time: 'Just now',
+          status: 'Closed',
+          logo: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(jobToDelete.company)}`
+        })
+      }
+
+      broadcastSync()
+      return { success: true }
+    },
+    [logActivity]
+  )
+
+  // Action: Toggle job status between Open and Closed
+  const toggleJobStatus = useCallback(
+    (jobId) => {
+      const currentJobs = readStorage(STORAGE_KEYS.JOBS)
+      const idx = currentJobs.findIndex((j) => String(j.id) === String(jobId))
+      if (idx === -1) return { success: false, message: 'Job not found' }
+
+      const newStatus = currentJobs[idx].status === 'open' ? 'closed' : 'open'
+      currentJobs[idx].status = newStatus
+      writeStorage(STORAGE_KEYS.JOBS, currentJobs)
+      setJobs(currentJobs)
+
+      logActivity({
+        id: `act_${Date.now()}`,
+        type: 'jobs',
+        title: `${currentJobs[idx].company} changed status of ${currentJobs[idx].title} to ${newStatus.toUpperCase()}`,
+        subtitle: newStatus === 'open' ? 'Accepting applications' : 'Applications paused',
+        time: 'Just now',
+        status: newStatus === 'open' ? 'Open' : 'Closed',
+        logo: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(currentJobs[idx].company)}`
+      })
+
+      broadcastSync()
+      return { success: true, status: newStatus }
+    },
+    [logActivity]
+  )
+
+  // Helper: Get job by ID
+  const getJobById = useCallback(
+    (jobId) => {
+      return jobs.find((j) => String(j.id) === String(jobId)) || null
+    },
+    [jobs]
   )
 
   // Action: Apply to job (Candidate)
@@ -227,7 +471,7 @@ export function DashboardProvider({ children }) {
   // Computed Real-Time Metrics (Strict clean 0 baseline at initial stage)
   const metrics = useMemo(() => {
     const jobCount = jobs.length
-    const activeJobs = jobs.filter((j) => j.status === 'active').length
+    const activeJobs = jobs.filter((j) => j.status === 'open' || j.status === 'active').length
 
     // Unique hiring companies from Company Management (live API) and live postings
     const companiesSet = new Set([
@@ -319,6 +563,10 @@ export function DashboardProvider({ children }) {
         pipelineStages,
         categories,
         addJob,
+        editJob,
+        deleteJob,
+        toggleJobStatus,
+        getJobById,
         applyToJob,
         toggleSaveJob,
         updateApplicationStatus,

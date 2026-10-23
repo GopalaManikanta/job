@@ -4,7 +4,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Mail, Lock, User, Building2, Eye, EyeOff, Loader2, ArrowRight, ShieldCheck } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { useAuth } from '../../context/AuthContext'
-import AuthLayout from '../../components/auth/AuthLayout'
+import AuthLayout from './AuthLayout'
 
 export default function RegisterPage() {
   const [searchParams] = useSearchParams()
