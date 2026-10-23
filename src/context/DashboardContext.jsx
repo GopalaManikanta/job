@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react'
 import { useAuth } from './AuthContext'
+import { useCompanies } from './CompanyContext'
 
 const DashboardContext = createContext(null)
 
@@ -31,6 +32,7 @@ const writeStorage = (key, data) => {
 
 export function DashboardProvider({ children }) {
   const { user } = useAuth()
+  const { companies: registeredCompanies, networkActivity } = useCompanies()
 
   // Live state collections
   const [jobs, setJobs] = useState(() => readStorage(STORAGE_KEYS.JOBS))
@@ -227,9 +229,12 @@ export function DashboardProvider({ children }) {
     const jobCount = jobs.length
     const activeJobs = jobs.filter((j) => j.status === 'active').length
 
-    // Unique hiring companies
-    const companies = new Set(jobs.map((j) => j.company.trim().toLowerCase()))
-    const companyCount = companies.size
+    // Unique hiring companies from Company Management (live API) and live postings
+    const companiesSet = new Set([
+      ...registeredCompanies.map((c) => c.name?.trim().toLowerCase()).filter(Boolean),
+      ...jobs.map((j) => j.company?.trim().toLowerCase()).filter(Boolean)
+    ])
+    const companyCount = companiesSet.size
 
     // User-aware application count
     let appCount = 0
@@ -253,7 +258,7 @@ export function DashboardProvider({ children }) {
       totalApplications: String(appCount),
       savedJobs: String(savedJobs.length)
     }
-  }, [jobs, applications, savedJobs, user])
+  }, [jobs, applications, savedJobs, registeredCompanies, user])
 
   // Computed Pipeline Stages
   const pipelineStages = useMemo(() => {
@@ -309,6 +314,8 @@ export function DashboardProvider({ children }) {
         applications,
         savedJobs,
         activities,
+        registeredCompanies,
+        networkActivity,
         pipelineStages,
         categories,
         addJob,

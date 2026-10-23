@@ -46,13 +46,17 @@ export default function StatCard({
   icon: Icon,
   trend = null,
   theme = 'cyan',
-  isLive = false
+  isLive = false,
+  onClick
 }) {
   const styles = STAT_COLORS[theme] || STAT_COLORS.cyan
 
   return (
     <div
-      className={`group relative bg-white border border-slate-200/90 rounded-2xl p-5 transition-all duration-300 transform hover:-translate-y-1 shadow-xs hover:shadow-md ${styles.borderHover} ${styles.glow} flex flex-col justify-between`}
+      onClick={onClick}
+      className={`group relative bg-white border border-slate-200/90 rounded-2xl p-5 transition-all duration-300 transform hover:-translate-y-1 shadow-xs hover:shadow-md ${styles.borderHover} ${styles.glow} flex flex-col justify-between ${
+        onClick ? 'cursor-pointer' : ''
+      }`}
     >
       {/* Top Row: Icon + Status Badge */}
       <div className="flex items-center justify-between mb-4">

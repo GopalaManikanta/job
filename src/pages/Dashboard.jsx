@@ -212,6 +212,7 @@ export default function Dashboard() {
               icon={Building2}
               trend={`${metrics.totalCompanies} Active`}
               theme="cyan"
+              onClick={() => navigate('/companies')}
             />
             <StatCard
               title="Total Jobs"
@@ -278,7 +279,13 @@ export default function Dashboard() {
           onOpenApplications={() => setShowApplicationsModal(true)}
           onOpenSavedJobs={() => setShowSavedModal(true)}
           onOpenInterviews={() => toast.info('Interview Calendar: Synchronized with 0 scheduled calls currently.')}
-          onOpenProfile={() => toast.success(`Profile active for ${user?.name} (${isCandidate ? 'Candidate' : 'Recruiter'})`)}
+          onOpenProfile={() => {
+            if (user?.role === 'recruiter') {
+              navigate('/companies')
+            } else {
+              toast.success(`Profile active for ${user?.name} (Candidate)`)
+            }
+          }}
         />
 
         {/* 5. Recent Activities Timeline */}
