@@ -24,8 +24,8 @@ const readStorage = (key) => {
 const writeStorage = (key, data) => {
   try {
     localStorage.setItem(key, JSON.stringify(data))
-  } catch (e) {
-    console.error(`Failed to write to localStorage for key: ${key}`, e)
+  } catch {
+    // Ignore storage write issues silently
   }
 }
 
@@ -71,8 +71,7 @@ export function CompanyProvider({ children }) {
       })
       broadcastSync()
     } catch (err) {
-      console.error('Error fetching companies:', err)
-      setError(err.message || 'Failed to connect to Company API. Please check your network.')
+      setError(err?.message || 'Failed to connect to Company API. Please check your network.')
       // Fallback to cache
       const cached = readStorage(STORAGE_KEY)
       if (cached && cached.length > 0) {
@@ -100,8 +99,8 @@ export function CompanyProvider({ children }) {
         })
         broadcastSync()
       })
-      .catch((err) => {
-        console.error('Initial fetch notice:', err)
+      .catch(() => {
+        // Handled via fallback cache
       })
   }, [])
 
@@ -165,8 +164,7 @@ export function CompanyProvider({ children }) {
       broadcastSync()
       return { success: true, company: newCompany }
     } catch (err) {
-      console.error('Failed to create company:', err)
-      return { success: false, message: err.message || 'Failed to create company.' }
+      return { success: false, message: err?.message || 'Failed to create company.' }
     } finally {
       setLoading(false)
     }
@@ -220,8 +218,7 @@ export function CompanyProvider({ children }) {
       broadcastSync()
       return { success: true, company: savedCompany }
     } catch (err) {
-      console.error('Failed to update company:', err)
-      return { success: false, message: err.message || 'Failed to update company.' }
+      return { success: false, message: err?.message || 'Failed to update company.' }
     } finally {
       setLoading(false)
     }
@@ -262,8 +259,7 @@ export function CompanyProvider({ children }) {
       broadcastSync()
       return { success: true }
     } catch (err) {
-      console.error('Failed to delete company:', err)
-      return { success: false, message: err.message || 'Failed to delete company.' }
+      return { success: false, message: err?.message || 'Failed to delete company.' }
     } finally {
       setLoading(false)
     }
@@ -298,8 +294,8 @@ export function CompanyProvider({ children }) {
           })
           return fetched
         }
-      } catch (err) {
-        console.error('fetchSingleCompany error:', err)
+      } catch {
+        // Fallback to local cache
       }
     }
     return companies.find((c) => String(c.id) === String(id)) || null

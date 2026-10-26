@@ -15,9 +15,6 @@ import {
   Search,
   Bookmark,
   X,
-  CheckCircle,
-  MapPin,
-  Send,
   Trash2
 } from 'lucide-react'
 
@@ -38,14 +35,12 @@ export default function Dashboard() {
     applications: liveApplications,
     savedJobs: liveSavedJobs,
     addJob,
-    applyToJob,
     toggleSaveJob,
     updateApplicationStatus
   } = useDashboard()
 
   // Modal states
   const [showPostJobModal, setShowPostJobModal] = useState(false)
-  const [showExploreModal, setShowExploreModal] = useState(false)
   const [showApplicationsModal, setShowApplicationsModal] = useState(false)
   const [showSavedModal, setShowSavedModal] = useState(false)
 
@@ -55,26 +50,6 @@ export default function Dashboard() {
     logout()
     toast.info('Logged out successfully.')
     navigate('/login')
-  }
-
-  // Candidate apply handler
-  const handleApply = (job) => {
-    const res = applyToJob(job)
-    if (res.success) {
-      toast.success(`Application submitted to ${job.company} for "${job.title}"!`)
-    } else {
-      toast.warning(res.message)
-    }
-  }
-
-  // Candidate toggle save handler
-  const handleToggleSave = (job) => {
-    const res = toggleSaveJob(job)
-    if (res.saved) {
-      toast.success(res.message)
-    } else {
-      toast.info(res.message)
-    }
   }
 
   // Recruiter advance applicant status handler
@@ -270,148 +245,7 @@ export default function Dashboard() {
       />
 
       {/* ========================================================= */}
-      {/* MODAL 2: EXPLORE JOBS MODAL (Candidate & Recruiter)       */}
-      {/* ========================================================= */}
-      {showExploreModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-cyan-50 text-cyan-600 border border-cyan-200">
-                  <Search className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">Explore Job Openings ({liveJobs.length})</h3>
-                  <p className="text-xs text-slate-500">Live positions updated dynamically in real-time</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowExploreModal(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto py-4 space-y-3 pr-1">
-              {liveJobs.length === 0 ? (
-                <div className="py-12 text-center">
-                  <Briefcase className="w-10 h-10 mx-auto text-slate-300 mb-2" />
-                  <h4 className="text-sm font-bold text-slate-800">No Job Openings Yet (Initial Stage)</h4>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
-                    No active job listings published at this stage. Check back soon for new openings from hiring partners.
-                  </p>
-                </div>
-              ) : (
-                liveJobs.map((job) => {
-                  const hasApplied = liveApplications.some(
-                    (a) => a.jobId === job.id && (a.candidateEmail === user?.email || a.candidateId === user?.id)
-                  )
-                  const isSaved = liveSavedJobs.some((s) => s.jobId === job.id)
-
-                  return (
-                    <div
-                      key={job.id}
-                      className="p-4 rounded-2xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:shadow-sm transition-all space-y-2.5"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setShowExploreModal(false)
-                              navigate(`/jobs/${job.id}`)
-                            }}
-                            className="text-sm font-bold text-slate-900 hover:text-blue-600 transition-colors text-left cursor-pointer"
-                          >
-                            {job.title}
-                          </button>
-                          <p className="text-xs font-semibold text-cyan-700 mt-0.5">{job.company}</p>
-                        </div>
-                        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200">
-                          {job.category}
-                        </span>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                          {job.location}
-                        </span>
-                        <span>&bull;</span>
-                        <span className="font-semibold text-slate-700">{job.salary}</span>
-                        <span>&bull;</span>
-                        <span className="text-slate-400">Posted {job.postedAt}</span>
-                      </div>
-
-                      {job.description && (
-                        <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                          {job.description}
-                        </p>
-                      )}
-
-                      <div className="flex items-center justify-between pt-2 border-t border-slate-200/60">
-                        <span className="text-[11px] text-slate-400 font-medium">
-                          {job.applicantsCount || 0} candidate applicants
-                        </span>
-
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleToggleSave(job)}
-                            className={`p-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
-                              isSaved
-                                ? 'bg-amber-50 text-amber-700 border-amber-300'
-                                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
-                            }`}
-                            title={isSaved ? 'Remove bookmark' : 'Bookmark job'}
-                          >
-                            <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-current' : ''}`} />
-                          </button>
-
-                          {hasApplied ? (
-                            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
-                              <CheckCircle className="w-3.5 h-3.5" />
-                              Applied
-                            </span>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => handleApply(job)}
-                              className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5"
-                            >
-                              <Send className="w-3.5 h-3.5" />
-                              <span>Quick Apply</span>
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })
-              )}
-            </div>
-
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-              <span className="text-slate-400">Looking for advanced filters & table view?</span>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowExploreModal(false)
-                  navigate('/jobs')
-                }}
-                className="font-bold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
-              >
-                Go to Full Jobs Directory &rarr;
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================= */}
-      {/* MODAL 3: APPLICATION TRACKER MODAL                       */}
+      {/* MODAL 2: APPLICATION TRACKER MODAL                       */}
       {/* ========================================================= */}
       {showApplicationsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">

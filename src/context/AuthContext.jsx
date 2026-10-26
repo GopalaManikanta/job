@@ -105,8 +105,8 @@ export function AuthProvider({ children }) {
           localStorage.setItem('job_portal_auth_user', JSON.stringify(authUser))
         }
       }
-    } catch (e) {
-      console.error('Failed to initialize users in localStorage:', e)
+    } catch {
+      // Ignore storage initialization issues silently
     }
   }, [])
 
@@ -144,8 +144,8 @@ export function AuthProvider({ children }) {
   const saveUsers = (users) => {
     try {
       localStorage.setItem('job_portal_users', JSON.stringify(users))
-    } catch (e) {
-      console.error('Failed to save users in localStorage:', e)
+    } catch {
+      // Ignore storage write issues silently
     }
   }
 

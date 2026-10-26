@@ -96,6 +96,12 @@ export default function JobDetailsPage() {
     return savedJobs.some((s) => s.jobId === job.id)
   }, [savedJobs, job])
 
+  // Recruiter: Applicant pool for this specific requisition
+  const jobApplications = useMemo(() => {
+    if (!job) return []
+    return applications.filter((a) => String(a.jobId) === String(job.id))
+  }, [applications, job])
+
   const isOpen = job?.status === 'open' || job?.status === 'active'
 
   // Apply Handler
@@ -465,6 +471,54 @@ export default function JobDetailsPage() {
                 )}
               </div>
             </div>
+
+            {/* Recruiter View: Live Candidate Applicant Pool */}
+            {!isCandidate && (
+              <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 rounded-lg bg-cyan-50 text-cyan-600 border border-cyan-100">
+                      <Users className="w-4 h-4" />
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                      Applicant Submissions Pool
+                    </h3>
+                  </div>
+                  <span className="text-xs font-bold text-cyan-700 bg-cyan-50 border border-cyan-200 px-3 py-1 rounded-full">
+                    {jobApplications.length} Candidate Submissions
+                  </span>
+                </div>
+
+                {jobApplications.length === 0 ? (
+                  <div className="py-6 text-center space-y-1">
+                    <p className="text-xs text-slate-500 font-medium">
+                      No candidate submissions received yet for this position.
+                    </p>
+                    <p className="text-[11px] text-slate-400">
+                      When candidates click "Quick Apply" or apply from the Jobs page, they will instantly appear here in real-time.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-slate-100">
+                    {jobApplications.map((app) => (
+                      <div key={app.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                        <div className="space-y-0.5">
+                          <span className="text-xs font-bold text-slate-900 block">
+                            {app.candidateName || 'Applicant'}
+                          </span>
+                          <span className="text-[11px] text-slate-500 block">
+                            {app.candidateEmail} &bull; Applied at {app.appliedAt}
+                          </span>
+                        </div>
+                        <span className="self-start sm:self-auto px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          {app.status || 'Applied'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Bottom Quick Apply Callout for Candidates */}
             {isCandidate && !isApplied && isOpen && (

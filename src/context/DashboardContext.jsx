@@ -29,7 +29,7 @@ const INITIAL_JOBS = [
     description: 'Lead the architecture and design of our mission-critical enterprise cloud infrastructure. You will work closely with distributed engineering teams to ensure 99.99% service reliability and automated CI/CD deployments.',
     responsibilities: 'Architect high-throughput cloud microservices, automate infrastructure provisioning using Terraform & Kubernetes, mentor junior engineers, and drive technical roadmaps.',
     postedAt: '10:30 AM',
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
     postedBy: 'recruiter@jobportal.com',
     applicantsCount: 3
   },
@@ -48,7 +48,7 @@ const INITIAL_JOBS = [
     description: 'Join our cutting-edge AI research and product group building next-gen visual perception models and edge inference engines.',
     responsibilities: 'Train deep learning models for object recognition, optimize model weights for low-power edge hardware, benchmark accuracy, and deploy production endpoints.',
     postedAt: '11:15 AM',
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     postedBy: 'recruiter@jobportal.com',
     applicantsCount: 5
   },
@@ -67,7 +67,7 @@ const INITIAL_JOBS = [
     description: 'We are seeking an exceptional frontend leader to drive frontend architecture, state synchronization, and design system performance across our global suite of SaaS platforms.',
     responsibilities: 'Drive architectural decisions for React frontend applications, maintain component libraries, optimize web vitals, and coordinate frontend releases with backend APIs.',
     postedAt: '09:45 AM',
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
     postedBy: 'recruiter@jobportal.com',
     applicantsCount: 2
   },
@@ -86,7 +86,7 @@ const INITIAL_JOBS = [
     description: 'Craft intuitive, elegant, and frictionless user experiences for millions of active professionals utilizing our talent analytics platform.',
     responsibilities: 'Conduct generative user interviews, build pixel-perfect Figma components, prototype user flows, and partner closely with engineers to ensure fidelity.',
     postedAt: 'Yesterday',
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
     postedBy: 'recruiter@jobportal.com',
     applicantsCount: 4
   },
@@ -105,7 +105,7 @@ const INITIAL_JOBS = [
     description: 'Ensure rock-solid security postures, automated patch management, and telemetry observability across hybrid cloud environments.',
     responsibilities: 'Maintain Kubernetes clusters, configure automated Prometheus & Grafana alerts, conduct vulnerability scans, and implement zero-trust access controls.',
     postedAt: '2 days ago',
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
     postedBy: 'recruiter@jobportal.com',
     applicantsCount: 1
   },
@@ -124,7 +124,7 @@ const INITIAL_JOBS = [
     description: 'Architect scalable data lakehouses and automated ETL pipelines handling multi-terabyte data streams with sub-second analytical querying.',
     responsibilities: 'Design lakehouse schemas, orchestrate daily Airflow DAGs, enforce data governance policies, and optimize Snowflake compute clusters.',
     postedAt: '3 days ago',
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(),
     postedBy: 'recruiter@jobportal.com',
     applicantsCount: 8
   }
@@ -151,8 +151,8 @@ const readStorage = (key) => {
 const writeStorage = (key, data) => {
   try {
     localStorage.setItem(key, JSON.stringify(data))
-  } catch (e) {
-    console.error(`Failed to write to localStorage for key: ${key}`, e)
+  } catch {
+    // Ignore storage write issues silently
   }
 }
 
