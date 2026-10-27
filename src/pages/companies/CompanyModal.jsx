@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Building2, Globe, Mail, MapPin, Loader2 } from 'lucide-react'
+import { X, Building2, Globe, Mail, MapPin, Loader2, Sparkles } from 'lucide-react'
 
 const INDUSTRIES = [
   'Software & Cloud',
@@ -235,9 +235,10 @@ function CompanyFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
             <button
               type="button"
               onClick={handleQuickFill}
-              className="text-xs font-semibold text-cyan-600 hover:text-cyan-800 underline cursor-pointer"
+              className="text-xs font-semibold text-cyan-600 hover:text-cyan-800 flex items-center gap-1 cursor-pointer transition-colors"
             >
-              ⚡ Auto-fill template
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Auto-fill template</span>
             </button>
           ) : <span />}
 

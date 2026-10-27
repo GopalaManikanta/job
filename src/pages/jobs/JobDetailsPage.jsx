@@ -23,7 +23,9 @@ import {
   ToggleLeft,
   ToggleRight,
   ExternalLink,
-  Award
+  CheckCircle2,
+  Award,
+  User
 } from 'lucide-react'
 
 import DashboardHeader from '../../components/DashboardHeader'
@@ -41,6 +43,7 @@ export default function JobDetailsPage() {
     deleteJob,
     toggleJobStatus,
     applyToJob,
+    withdrawApplication,
     toggleSaveJob
   } = useDashboard()
   const { companies } = useCompanies()
@@ -323,9 +326,24 @@ export default function JobDetailsPage() {
                   </button>
 
                   {isApplied ? (
-                    <div className="px-5 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold flex items-center gap-2 shadow-xs">
-                      <Check className="w-4 h-4" />
-                      <span>Application Submitted</span>
+                    <div className="flex items-center gap-2">
+                      <div className="px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold flex items-center gap-2 shadow-xs">
+                        <Check className="w-4 h-4" />
+                        <span>Application Submitted</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (applicationRecord) {
+                            withdrawApplication(applicationRecord.id)
+                            toast.info(`Application for "${job.title}" withdrawn.`)
+                          }
+                        }}
+                        className="px-3 py-2 rounded-xl bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-600 border border-slate-200 text-xs font-bold transition-colors cursor-pointer shadow-2xs"
+                        title="Withdraw your application"
+                      >
+                        Withdraw
+                      </button>
                     </div>
                   ) : !isOpen ? (
                     <button
@@ -510,9 +528,18 @@ export default function JobDetailsPage() {
                             {app.candidateEmail} &bull; Applied at {app.appliedAt}
                           </span>
                         </div>
-                        <span className="self-start sm:self-auto px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          {app.status || 'Applied'}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <Link
+                            to={`/profile/${app.candidateId || 'usr_cand_01'}`}
+                            className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-cyan-50 hover:text-cyan-700 text-slate-700 text-[11px] font-bold border border-slate-200 transition-colors flex items-center gap-1 cursor-pointer"
+                          >
+                            <User className="w-3 h-3 text-cyan-600" />
+                            <span>View Profile</span>
+                          </Link>
+                          <span className="self-start sm:self-auto px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            {app.status || 'Applied'}
+                          </span>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -538,6 +565,37 @@ export default function JobDetailsPage() {
                 >
                   <Send className="w-4 h-4" />
                   <span>Submit Application</span>
+                </button>
+              </div>
+            )}
+
+            {/* When applied: show application review status callout */}
+            {isCandidate && isApplied && (
+              <div className="bg-emerald-50/70 border border-emerald-200 rounded-3xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-emerald-950">
+                      Application Active in {job.company} Pipeline
+                    </h4>
+                    <p className="text-xs text-emerald-700 mt-0.5">
+                      Status: <span className="font-bold uppercase tracking-wider">{applicationRecord?.status || 'Applied'}</span> &bull; Submitted {applicationRecord?.appliedAt || 'recently'}. Recruiters have received your candidate profile.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (applicationRecord) {
+                      withdrawApplication(applicationRecord.id)
+                      toast.info(`Application for "${job.title}" withdrawn.`)
+                    }
+                  }}
+                  className="px-4 py-2 rounded-xl bg-white hover:bg-rose-50 border border-slate-200 text-xs font-bold text-slate-600 hover:text-rose-600 shadow-2xs transition-all cursor-pointer self-start sm:self-auto shrink-0"
+                >
+                  Withdraw Application
                 </button>
               </div>
             )}

@@ -2,6 +2,75 @@ import { createContext, useContext, useState, useEffect } from 'react'
 
 const AuthContext = createContext(null)
 
+export const DEFAULT_CANDIDATE_PROFILE = {
+  id: 'usr_cand_01',
+  userId: 'usr_cand_01',
+  fullName: 'Rohit Sharma',
+  email: 'candidate@jobportal.com',
+  mobileNumber: '+91 98765 43210',
+  headline: 'Senior Full Stack React Engineer',
+  bio: 'Passionate Full Stack Software Engineer with 5+ years of experience designing high-scale React, TypeScript, and Node.js applications. Strong advocate of component modularity, web performance, and zero-defect deployments.',
+  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300',
+  address: {
+    street: 'Flat 402, Cyber Heights, HITEC City',
+    city: 'Hyderabad',
+    state: 'Telangana',
+    pincode: '500081',
+    country: 'India'
+  },
+  skills: [
+    'React',
+    'TypeScript',
+    'Node.js',
+    'Tailwind CSS',
+    'Next.js',
+    'GraphQL',
+    'PostgreSQL',
+    'Docker',
+    'REST APIs',
+    'Git'
+  ],
+  experience: [
+    {
+      id: 'exp_01',
+      role: 'Senior React Engineer',
+      company: 'TechWave Solutions',
+      location: 'Hyderabad, India (Hybrid)',
+      startDate: '2022-06',
+      endDate: '',
+      isCurrent: true,
+      description: 'Lead frontend architect for high-throughput cloud dashboards. Spearheaded micro-frontend migration resulting in 35% faster page load times.'
+    },
+    {
+      id: 'exp_02',
+      role: 'Frontend Developer',
+      company: 'Innovate Apps Inc.',
+      location: 'Bengaluru, India',
+      startDate: '2020-07',
+      endDate: '2022-05',
+      isCurrent: false,
+      description: 'Engineered responsive web applications using React, Redux, and Tailwind CSS. Collaborated with UX team to build design systems.'
+    }
+  ],
+  education: [
+    {
+      id: 'edu_01',
+      degree: 'B.Tech in Computer Science & Engineering',
+      institution: 'Jawaharlal Nehru Technological University (JNTU)',
+      fieldOfStudy: 'Computer Science',
+      startYear: '2016',
+      endYear: '2020',
+      grade: '8.8 CGPA (First Class with Distinction)'
+    }
+  ],
+  resume: {
+    fileName: 'Rohit_Sharma_Senior_FullStack_Resume.pdf',
+    fileSize: '1.4 MB',
+    uploadedAt: 'Today at 09:30 AM',
+    fileType: 'application/pdf'
+  }
+}
+
 const INITIAL_USERS = [
   {
     id: 'usr_cand_01',
@@ -308,6 +377,110 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Update authenticated user profile
+  const updateUserProfile = (updatedData) => {
+    try {
+      const current = user || JSON.parse(localStorage.getItem('job_portal_auth_user') || '{}')
+      const merged = { ...current, ...updatedData }
+      localStorage.setItem('job_portal_auth_user', JSON.stringify(merged))
+      setUser(merged)
+
+      // Also persist to all users list
+      const users = getUsers()
+      const idx = users.findIndex(
+        (u) => u.id === merged.id || u.email?.toLowerCase() === merged.email?.toLowerCase()
+      )
+      if (idx !== -1) {
+        users[idx] = { ...users[idx], ...updatedData }
+        saveUsers(users)
+      }
+
+      window.dispatchEvent(new Event('storage'))
+      return { success: true, user: merged }
+    } catch {
+      return { success: false, message: 'Failed to update user profile.' }
+    }
+  }
+
+  // Get candidate full profile
+  const getCandidateProfile = (candidateUserId) => {
+    try {
+      const targetId = candidateUserId || user?.id || 'usr_cand_01'
+      const key = `job_portal_candidate_profile_${targetId}`
+      const stored = localStorage.getItem(key)
+      if (stored) {
+        return JSON.parse(stored)
+      }
+
+      // Check if this is the default candidate Rohit Sharma
+      if (targetId === 'usr_cand_01' || user?.email === 'candidate@jobportal.com') {
+        localStorage.setItem(key, JSON.stringify(DEFAULT_CANDIDATE_PROFILE))
+        return DEFAULT_CANDIDATE_PROFILE
+      }
+
+      // Otherwise build default for current user
+      const dynamicProfile = {
+        id: targetId,
+        userId: targetId,
+        fullName: user?.name || 'Professional',
+        email: user?.email || '',
+        mobileNumber: user?.mobileNumber || '+91 98765 00000',
+        headline: user?.headline || 'Software Engineer',
+        bio: 'Professional software developer passionate about building scalable solutions and continuous learning.',
+        avatar: user?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user?.name || 'User')}`,
+        address: {
+          street: 'Technology Park, Madhapur',
+          city: 'Hyderabad',
+          state: 'Telangana',
+          pincode: '500081',
+          country: 'India'
+        },
+        skills: ['JavaScript', 'React', 'HTML5', 'CSS3', 'Git'],
+        experience: [],
+        education: [],
+        resume: null
+      }
+      localStorage.setItem(key, JSON.stringify(dynamicProfile))
+      return dynamicProfile
+    } catch {
+      return DEFAULT_CANDIDATE_PROFILE
+    }
+  }
+
+  // Save candidate profile
+  const saveCandidateProfile = (profileData) => {
+    try {
+      const targetId = profileData.userId || profileData.id || user?.id || 'usr_cand_01'
+      const key = `job_portal_candidate_profile_${targetId}`
+      const fullProfile = {
+        ...profileData,
+        id: targetId,
+        userId: targetId,
+        updatedAt: new Date().toISOString()
+      }
+      localStorage.setItem(key, JSON.stringify(fullProfile))
+
+      // Keep user in sync if it's the current logged in user
+      if (user && (user.id === targetId || user.email === fullProfile.email)) {
+        updateUserProfile({
+          name: fullProfile.fullName,
+          email: fullProfile.email,
+          headline: fullProfile.headline,
+          avatar: fullProfile.avatar,
+          mobileNumber: fullProfile.mobileNumber,
+          location: fullProfile.address?.city && fullProfile.address?.country
+            ? `${fullProfile.address.city}, ${fullProfile.address.country}`
+            : user.location
+        })
+      }
+
+      window.dispatchEvent(new Event('storage'))
+      return { success: true, profile: fullProfile }
+    } catch {
+      return { success: false, message: 'Failed to save profile' }
+    }
+  }
+
   // Logout handler
   const logout = () => {
     localStorage.removeItem('job_portal_auth_user')
@@ -323,7 +496,10 @@ export function AuthProvider({ children }) {
         register,
         requestPasswordReset,
         resetPassword,
-        logout
+        logout,
+        updateUserProfile,
+        getCandidateProfile,
+        saveCandidateProfile
       }}
     >
       {children}

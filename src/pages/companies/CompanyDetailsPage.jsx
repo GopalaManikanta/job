@@ -39,7 +39,7 @@ export default function CompanyDetailsPage() {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
   const { getCompanyById, editCompany, deleteCompany, fetchSingleCompany } = useCompanies()
-  const { jobs, applyToJob, addJob } = useDashboard()
+  const { jobs, applications, applyToJob, addJob } = useDashboard()
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -126,6 +126,15 @@ export default function CompanyDetailsPage() {
     } else {
       toast.warning(res.message)
     }
+  }
+
+  // Check if candidate already applied to this job
+  const isJobApplied = (jobId) => {
+    const candidateEmail = user?.email || 'candidate@jobportal.com'
+    const candidateId = user?.id || 'cand_demo'
+    return applications?.some(
+      (a) => a.jobId === jobId && (a.candidateEmail === candidateEmail || a.candidateId === candidateId)
+    )
   }
 
   if (loadingDetails && !company) {
@@ -539,6 +548,11 @@ export default function CompanyDetailsPage() {
                           {isClosed ? (
                             <span className="px-3.5 py-2 rounded-xl bg-slate-100 text-slate-400 text-xs font-bold">
                               Closed
+                            </span>
+                          ) : isJobApplied(job.id) ? (
+                            <span className="px-3.5 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold flex items-center gap-1.5 shadow-2xs">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>Applied</span>
                             </span>
                           ) : (
                             <button

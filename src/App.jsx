@@ -14,6 +14,7 @@ import CompaniesPage from './pages/companies/CompaniesPage'
 import CompanyDetailsPage from './pages/companies/CompanyDetailsPage'
 import JobsPage from './pages/jobs/JobsPage'
 import JobDetailsPage from './pages/jobs/JobDetailsPage'
+import CandidateProfilePage from './pages/profile/CandidateProfilePage'
 
 export default function App() {
   return (
@@ -65,6 +66,22 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <CompanyDetailsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <CandidateProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile/:candidateId"
+                element={
+                  <ProtectedRoute>
+                    <CandidateProfilePage />
                   </ProtectedRoute>
                 }
               />

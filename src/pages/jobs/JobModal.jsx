@@ -197,7 +197,7 @@ function JobFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
               className="text-xs font-bold text-cyan-600 hover:text-cyan-800 flex items-center gap-1 cursor-pointer self-start sm:self-auto"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>⚡ Auto-fill template</span>
+              <span>Auto-fill template</span>
             </button>
           )}
         </div>

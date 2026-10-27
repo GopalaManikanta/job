@@ -159,7 +159,7 @@ export default function QuickActions({
         if (onOpenProfile) onOpenProfile()
         break
       case 'resume_docs':
-        toast.info('Resume & Documents: Upload or update your resume and portfolio links.')
+        if (onOpenProfile) onOpenProfile()
         break
       case 'talent_search':
         toast.info('Talent Network Search: Browse registered candidate profiles in the talent pool.')

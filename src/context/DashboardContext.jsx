@@ -377,10 +377,15 @@ export function DashboardProvider({ children }) {
         jobId: job.id,
         jobTitle: job.title,
         company: job.company,
+        location: job.location,
+        salary: job.salary,
+        category: job.category,
+        type: job.type,
         candidateId,
         candidateName: user?.name || 'Candidate',
         candidateEmail,
         appliedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        appliedDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         status: 'Applied'
       }
 
@@ -411,6 +416,42 @@ export function DashboardProvider({ children }) {
       return { success: true, application: newApp }
     },
     [user, logActivity]
+  )
+
+  // Action: Withdraw application (Candidate)
+  const withdrawApplication = useCallback(
+    (appId) => {
+      const currentApps = readStorage(STORAGE_KEYS.APPLICATIONS)
+      const appToWithdraw = currentApps.find((a) => a.id === appId)
+      if (!appToWithdraw) return { success: false, message: 'Application not found.' }
+
+      const updatedApps = currentApps.filter((a) => a.id !== appId)
+      writeStorage(STORAGE_KEYS.APPLICATIONS, updatedApps)
+      setApplications(updatedApps)
+
+      // Decrement applicantsCount on the job listing
+      const currentJobs = readStorage(STORAGE_KEYS.JOBS)
+      const jobIdx = currentJobs.findIndex((j) => j.id === appToWithdraw.jobId)
+      if (jobIdx !== -1 && (currentJobs[jobIdx].applicantsCount || 0) > 0) {
+        currentJobs[jobIdx].applicantsCount = currentJobs[jobIdx].applicantsCount - 1
+        writeStorage(STORAGE_KEYS.JOBS, currentJobs)
+        setJobs(currentJobs)
+      }
+
+      logActivity({
+        id: `act_${Date.now()}`,
+        type: 'applications',
+        title: `${appToWithdraw.candidateName} withdrew application for ${appToWithdraw.jobTitle}`,
+        subtitle: `${appToWithdraw.company} • Withdrawn Application`,
+        time: 'Just now',
+        status: 'Withdrawn',
+        logo: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(appToWithdraw.candidateName)}`
+      })
+
+      broadcastSync()
+      return { success: true, message: 'Application withdrawn successfully.' }
+    },
+    [logActivity]
   )
 
   // Action: Toggle save/bookmark job
@@ -568,6 +609,7 @@ export function DashboardProvider({ children }) {
         toggleJobStatus,
         getJobById,
         applyToJob,
+        withdrawApplication,
         toggleSaveJob,
         updateApplicationStatus,
         refreshDashboard

@@ -10,7 +10,8 @@ import {
   X,
   Inbox,
   LayoutDashboard,
-  Building2
+  Building2,
+  User
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 
@@ -104,6 +105,18 @@ export default function DashboardHeader({ user, onLogout }) {
           >
             <Building2 className="w-3.5 h-3.5 text-cyan-600" />
             <span>Companies</span>
+          </Link>
+
+          <Link
+            to="/profile"
+            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
+              location.pathname.startsWith('/profile')
+                ? 'bg-white text-cyan-700 shadow-xs'
+                : 'text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <User className="w-3.5 h-3.5 text-cyan-600" />
+            <span>Profile</span>
           </Link>
         </nav>
 
@@ -200,25 +213,33 @@ export default function DashboardHeader({ user, onLogout }) {
 
           {/* User Profile Card */}
           <div className="flex items-center gap-2.5 pl-2 border-l border-slate-200">
-            <img
-              src={
-                user?.avatar ||
-                `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user?.name || 'User')}`
-              }
-              alt={user?.name}
-              className={`w-8 h-8 rounded-xl object-cover border-2 shadow-xs ${
-                isCandidate ? 'border-cyan-400' : 'border-purple-400'
-              }`}
-            />
-            <div className="hidden xl:block text-left">
-              <div className="flex items-center gap-1">
-                <span className="text-xs font-bold text-slate-900 leading-tight">{user?.name}</span>
-                <CheckCircle2 className="w-3 h-3 text-cyan-600" />
+            <Link
+              to="/profile"
+              className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-100 transition-colors group cursor-pointer"
+              title="View & Edit Profile"
+            >
+              <img
+                src={
+                  user?.avatar ||
+                  `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user?.name || 'User')}`
+                }
+                alt={user?.name}
+                className={`w-8 h-8 rounded-xl object-cover border-2 shadow-xs transition-transform group-hover:scale-105 ${
+                  isCandidate ? 'border-cyan-400' : 'border-purple-400'
+                }`}
+              />
+              <div className="hidden xl:block text-left">
+                <div className="flex items-center gap-1">
+                  <span className="text-xs font-bold text-slate-900 leading-tight group-hover:text-cyan-700 transition-colors">
+                    {user?.name}
+                  </span>
+                  <CheckCircle2 className="w-3 h-3 text-cyan-600" />
+                </div>
+                <span className="text-[10px] text-slate-500 block truncate max-w-[120px]">
+                  {user?.headline || (isCandidate ? 'Full Stack Developer' : 'Senior Recruiter')}
+                </span>
               </div>
-              <span className="text-[10px] text-slate-500 block truncate max-w-[120px]">
-                {user?.headline || (isCandidate ? 'Full Stack Developer' : 'Senior Recruiter')}
-              </span>
-            </div>
+            </Link>
 
             {/* Logout Button */}
             <button
