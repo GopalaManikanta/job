@@ -20,7 +20,9 @@ import {
   Eye,
   Video,
   Send,
-  CheckCircle2
+  CheckCircle2,
+  BarChart3,
+  User
 } from 'lucide-react'
 
 import DashboardHeader from '../components/DashboardHeader'
@@ -46,13 +48,11 @@ export default function Dashboard() {
     updateApplicationStatus
   } = useDashboard()
 
-  // Modal states
   const [showPostJobModal, setShowPostJobModal] = useState(false)
   const [showApplicationsModal, setShowApplicationsModal] = useState(false)
   const [showSavedModal, setShowSavedModal] = useState(false)
   const [showInterviewsModal, setShowInterviewsModal] = useState(false)
 
-  // Real-time search query inside dashboard modals
   const [appSearchQuery, setAppSearchQuery] = useState('')
   const [savedSearchQuery, setSavedSearchQuery] = useState('')
 
@@ -64,13 +64,11 @@ export default function Dashboard() {
     navigate('/login')
   }
 
-  // Recruiter advance applicant status handler
   const handleAdvanceStatus = (appId, status) => {
     updateApplicationStatus(appId, status)
     toast.success(`Application status updated to "${status}"!`)
   }
 
-  // Candidate applications scoping
   const candidateApplications = useMemo(() => {
     if (isCandidate) {
       const email = user?.email || 'candidate@jobportal.com'
@@ -79,12 +77,52 @@ export default function Dashboard() {
         (a) => a.candidateEmail === email || a.candidateId === id
       )
     }
-    return liveApplications
+    return []
   }, [liveApplications, isCandidate, user])
 
-  // Filtered applications for modal search
+  const recruiterCompany = user?.company?.trim().toLowerCase()
+
+  const recruiterJobs = useMemo(() => {
+    if (isCandidate) return liveJobs
+    if (recruiterCompany) {
+      const companyJobs = liveJobs.filter(
+        (j) => j.company?.trim().toLowerCase() === recruiterCompany || j.postedBy === user?.email
+      )
+      if (companyJobs.length > 0) return companyJobs
+    }
+    return liveJobs
+  }, [liveJobs, isCandidate, recruiterCompany, user?.email])
+
+  const recruiterApplications = useMemo(() => {
+    if (isCandidate) return []
+    if (recruiterCompany) {
+      const companyApps = liveApplications.filter(
+        (a) => a.company?.trim().toLowerCase() === recruiterCompany
+      )
+      if (companyApps.length > 0) return companyApps
+    }
+    return liveApplications
+  }, [liveApplications, isCandidate, recruiterCompany])
+
+  const scheduledInterviews = useMemo(() => {
+    const list = isCandidate
+      ? candidateApplications
+      : recruiterApplications.length > 0
+      ? recruiterApplications
+      : liveApplications
+    return list.filter((a) => a.status === 'Interview Scheduled')
+  }, [isCandidate, candidateApplications, recruiterApplications, liveApplications])
+
+  const activeRecruiterJobsCount = useMemo(() => {
+    return recruiterJobs.filter((j) => j.status === 'open' || j.status === 'active').length
+  }, [recruiterJobs])
+
   const displayedApplications = useMemo(() => {
-    const list = isCandidate ? candidateApplications : liveApplications
+    const list = isCandidate
+      ? candidateApplications
+      : recruiterApplications.length > 0
+      ? recruiterApplications
+      : liveApplications
     if (!appSearchQuery.trim()) return list
     const q = appSearchQuery.toLowerCase().trim()
     return list.filter(
@@ -94,9 +132,8 @@ export default function Dashboard() {
         a.status?.toLowerCase().includes(q) ||
         a.candidateName?.toLowerCase().includes(q)
     )
-  }, [isCandidate, candidateApplications, liveApplications, appSearchQuery])
+  }, [isCandidate, candidateApplications, recruiterApplications, liveApplications, appSearchQuery])
 
-  // Filtered saved jobs for modal search
   const displayedSavedJobs = useMemo(() => {
     if (!savedSearchQuery.trim()) return liveSavedJobs
     const q = savedSearchQuery.toLowerCase().trim()
@@ -107,23 +144,16 @@ export default function Dashboard() {
     )
   }, [liveSavedJobs, savedSearchQuery])
 
-  // Scheduled technical interviews
-  const scheduledInterviews = useMemo(() => {
-    return candidateApplications.filter((a) => a.status === 'Interview Scheduled')
-  }, [candidateApplications])
-
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col relative overflow-x-hidden selection:bg-cyan-500 selection:text-white">
-      {/* Background Ambient Glow */}
+
       <div className="fixed top-0 left-1/4 -translate-x-1/2 w-[600px] h-[600px] bg-blue-100/50 rounded-full blur-[140px] pointer-events-none -z-10" />
       <div className="fixed bottom-0 right-1/4 translate-x-1/2 w-[600px] h-[600px] bg-indigo-100/40 rounded-full blur-[140px] pointer-events-none -z-10" />
 
-      {/* Top Navigation Header */}
       <DashboardHeader user={user} onLogout={handleLogout} />
 
-      {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-10 py-6 space-y-8">
-        {/* 1. Welcome Hero Banner */}
+
         <div className="relative overflow-hidden bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs">
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2">
@@ -142,12 +172,11 @@ export default function Dashboard() {
               </h1>
               <p className="text-xs sm:text-sm font-medium text-slate-600 max-w-2xl leading-relaxed">
                 {isCandidate
-                  ? `Your candidate portal is live. You have ${metrics.totalApplications} active applications and ${metrics.savedJobs} saved jobs. Explore live openings posted by recruiters.`
-                  : `Recruiter workspace active for ${user?.company || 'Apex Cloud Systems'}. You have ${metrics.activeJobPostings} active job postings and ${metrics.totalApplications} applicant submissions.`}
+                  ? `Your candidate portal is live. You have ${candidateApplications.length} active applications and ${metrics.savedJobs} saved jobs. Explore live openings posted by recruiters.`
+                  : `Recruiter workspace active for ${user?.company || 'Apex Cloud Systems'}. Manage ${recruiterJobs.length} company requisitions, review ${recruiterApplications.length} candidate applications, and coordinate hiring rounds.`}
               </p>
             </div>
 
-            {/* Quick Hero Action Buttons */}
             <div className="flex flex-wrap items-center gap-3 shrink-0">
               {isCandidate ? (
                 <button
@@ -168,19 +197,29 @@ export default function Dashboard() {
                   <span>Post New Job</span>
                 </button>
               )}
+
+              <button
+                type="button"
+                onClick={() => navigate('/reports')}
+                className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+              >
+                <BarChart3 className="w-4 h-4 text-blue-600" />
+                <span>Analytics & Reports</span>
+              </button>
             </div>
           </div>
         </div>
 
-        {/* 2. Top Metric Cards Grid */}
         <div>
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-                Platform Key Metrics & Overview
+                {isCandidate ? 'Career Search Key Metrics & Overview' : 'Enterprise Hiring Key Performance Indicators'}
               </h2>
               <p className="text-xs text-slate-500">
-                Real-time metrics calculated dynamically from platform activity
+                {isCandidate
+                  ? 'Real-time metrics calculated dynamically from your personal applications and market listings'
+                  : 'Live requisition metrics and candidate submission velocity for your organization'}
               </p>
             </div>
             <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-blue-700 font-semibold px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200">
@@ -189,79 +228,239 @@ export default function Dashboard() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-            <StatCard
-              title="Total Companies"
-              value={metrics.totalCompanies}
-              subtitle="Registered hiring partners"
-              icon={Building2}
-              trend={`${metrics.totalCompanies} Active`}
-              theme="cyan"
-              onClick={() => navigate('/companies')}
-            />
-            <StatCard
-              title="Total Jobs"
-              value={metrics.totalJobs}
-              subtitle="Published listings"
-              icon={Briefcase}
-              trend={`${metrics.totalJobs} Listings`}
-              theme="blue"
-              onClick={() => navigate('/jobs')}
-            />
-            <StatCard
-              title="Active Job Postings"
-              value={metrics.activeJobPostings}
-              subtitle="Live requisitions"
-              icon={Zap}
-              trend={`${metrics.activeJobPostings} Live`}
-              theme="purple"
-              isLive={metrics.activeJobPostings !== '0'}
-              onClick={() => navigate('/jobs')}
-            />
-            <StatCard
-              title="Total Candidates"
-              value={metrics.totalCandidates}
-              subtitle="Active applicant pool"
-              icon={Users}
-              trend={`${metrics.totalCandidates} Profiles`}
-              theme="emerald"
-              onClick={() => (isCandidate ? navigate('/profile') : toast.info('Candidate Talent Pool: Verified profiles in talent network.'))}
-            />
-            <StatCard
-              title="Total Applications"
-              value={isCandidate ? String(candidateApplications.length) : metrics.totalApplications}
-              subtitle={isCandidate ? 'My submitted applications' : 'Applications received'}
-              icon={FileCheck}
-              trend={`${isCandidate ? candidateApplications.length : metrics.totalApplications} Applied`}
-              theme="amber"
-              onClick={() => setShowApplicationsModal(true)}
-            />
-            <StatCard
-              title="Saved Jobs"
-              value={metrics.savedJobs}
-              subtitle="Bookmarked vacancies"
-              icon={BookmarkCheck}
-              trend={`${metrics.savedJobs} Saved`}
-              theme="rose"
-              onClick={() => setShowSavedModal(true)}
-            />
-          </div>
+          {isCandidate ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+              <StatCard
+                title="Total Jobs"
+                value={metrics.totalJobs}
+                subtitle="Published listings"
+                icon={Briefcase}
+                trend={`${metrics.totalJobs} Listings`}
+                theme="blue"
+                onClick={() => navigate('/jobs')}
+              />
+              <StatCard
+                title="Active Openings"
+                value={metrics.activeJobPostings}
+                subtitle="Live vacancies"
+                icon={Zap}
+                trend={`${metrics.activeJobPostings} Live`}
+                theme="cyan"
+                isLive={metrics.activeJobPostings !== '0'}
+                onClick={() => navigate('/jobs')}
+              />
+              <StatCard
+                title="My Applications"
+                value={String(candidateApplications.length)}
+                subtitle="Submitted applications"
+                icon={FileCheck}
+                trend={`${candidateApplications.length} Applied`}
+                theme="amber"
+                onClick={() => setShowApplicationsModal(true)}
+              />
+              <StatCard
+                title="Saved Jobs"
+                value={metrics.savedJobs}
+                subtitle="Bookmarked vacancies"
+                icon={BookmarkCheck}
+                trend={`${metrics.savedJobs} Saved`}
+                theme="rose"
+                onClick={() => setShowSavedModal(true)}
+              />
+              <StatCard
+                title="Interviews"
+                value={String(scheduledInterviews.length)}
+                subtitle="Confirmed rounds"
+                icon={Calendar}
+                trend={`${scheduledInterviews.length} Scheduled`}
+                theme="purple"
+                onClick={() => setShowInterviewsModal(true)}
+              />
+              <StatCard
+                title="Companies"
+                value={metrics.totalCompanies}
+                subtitle="Hiring partners"
+                icon={Building2}
+                trend={`${metrics.totalCompanies} Verified`}
+                theme="emerald"
+                onClick={() => navigate('/companies')}
+              />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+              <StatCard
+                title="Company Requisitions"
+                value={String(recruiterJobs.length)}
+                subtitle="Posted job openings"
+                icon={Briefcase}
+                trend={`${recruiterJobs.length} Requisitions`}
+                theme="blue"
+                onClick={() => navigate('/jobs')}
+              />
+              <StatCard
+                title="Active Openings"
+                value={String(activeRecruiterJobsCount)}
+                subtitle="Accepting candidates"
+                icon={Zap}
+                trend={`${activeRecruiterJobsCount} Live`}
+                theme="cyan"
+                isLive={activeRecruiterJobsCount > 0}
+                onClick={() => navigate('/jobs')}
+              />
+              <StatCard
+                title="Applications Received"
+                value={String(recruiterApplications.length)}
+                subtitle="Candidate submissions"
+                icon={FileCheck}
+                trend={`${recruiterApplications.length} Submissions`}
+                theme="amber"
+                onClick={() => setShowApplicationsModal(true)}
+              />
+              <StatCard
+                title="Interviews Scheduled"
+                value={String(scheduledInterviews.length)}
+                subtitle="Upcoming rounds"
+                icon={Calendar}
+                trend={`${scheduledInterviews.length} Scheduled`}
+                theme="purple"
+                onClick={() => setShowInterviewsModal(true)}
+              />
+              <StatCard
+                title="Candidate Pool"
+                value={metrics.totalCandidates}
+                subtitle="Registered job seekers"
+                icon={Users}
+                trend={`${metrics.totalCandidates} Profiles`}
+                theme="emerald"
+                onClick={() => navigate('/applications')}
+              />
+              <StatCard
+                title="Partner Companies"
+                value={metrics.totalCompanies}
+                subtitle="Verified organizations"
+                icon={Building2}
+                trend={`${metrics.totalCompanies} Active`}
+                theme="rose"
+                onClick={() => navigate('/companies')}
+              />
+            </div>
+          )}
         </div>
 
-        {/* 3. Dashboard Statistics & Pipeline Analytics Section */}
+        {!isCandidate && (
+          <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-purple-50 text-purple-600 border border-purple-100">
+                  <Briefcase className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 tracking-tight">
+                    Active Company Requisitions & Talent Pipeline
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Live job postings published for {user?.company || 'Apex Cloud Systems'} &bull; Real-time applicant tracking
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowPostJobModal(true)}
+                  className="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5 transition-colors"
+                >
+                  <PlusCircle className="w-3.5 h-3.5" />
+                  <span>Post Requisition</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate('/jobs')}
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer transition-colors"
+                >
+                  <span>Manage All ({recruiterJobs.length})</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="divide-y divide-slate-100">
+              {recruiterJobs.slice(0, 4).map((job) => {
+                const isOpen = job.status === 'open' || job.status === 'active'
+                const appCount = job.applicantsCount || 0
+
+                return (
+                  <div
+                    key={job.id}
+                    className="py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-slate-50/70 px-2 rounded-2xl transition-colors"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-bold text-slate-900 hover:text-purple-600 transition-colors">
+                          {job.title}
+                        </span>
+                        <span
+                          className={`px-2 py-0.2 rounded-full text-[10px] font-bold border ${
+                            isOpen
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : 'bg-slate-100 text-slate-600 border-slate-200'
+                          }`}
+                        >
+                          {isOpen ? 'Accepting Applicants' : 'Closed'}
+                        </span>
+                        <span className="text-[11px] font-bold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.2 rounded-full">
+                          {appCount} {appCount === 1 ? 'Applicant' : 'Applicants'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 flex flex-wrap items-center gap-2">
+                        <span className="font-semibold text-slate-700">{job.category}</span>
+                        <span>&bull;</span>
+                        <span>{job.location}</span>
+                        <span>&bull;</span>
+                        <span className="font-semibold text-slate-900">{job.salary}</span>
+                        <span>&bull;</span>
+                        <span>{job.type}</span>
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setShowApplicationsModal(true)}
+                        className="px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold cursor-pointer transition-colors flex items-center gap-1 shadow-2xs"
+                      >
+                        <FileCheck className="w-3.5 h-3.5" />
+                        <span>Review Applicants</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/jobs/${job.id}`)}
+                        className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1 shadow-2xs"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>View</span>
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
         <div>
           <div className="mb-4">
             <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-              Dashboard Statistics & Pipeline Analytics
+              {isCandidate ? 'Application Pipeline Analytics' : 'Candidate Screening & Hiring Funnel'}
             </h2>
             <p className="text-xs text-slate-500">
-              Live funnel progression and sector distribution
+              {isCandidate
+                ? 'Live funnel progression across your submitted applications'
+                : 'Recruitment funnel progression across incoming applicant profiles'}
             </p>
           </div>
           <DashboardStats />
         </div>
 
-        {/* 4. Quick Action Cards */}
         <QuickActions
           user={user}
           onOpenPostJob={() => setShowPostJobModal(true)}
@@ -272,18 +471,13 @@ export default function Dashboard() {
           onOpenProfile={() => navigate('/profile')}
         />
 
-        {/* 5. Recent Activities Timeline */}
         <RecentActivities />
 
-        {/* 6. Footer System Note */}
         <footer className="pt-6 pb-4 border-t border-slate-200 text-center text-xs text-slate-400">
           CareerX &bull; AI Powered Talent Network &bull; Responsive Light Theme &bull; 2-Way Real-Time Sync
         </footer>
       </main>
 
-      {/* ========================================================= */}
-      {/* MODAL 1: POST JOB MODAL (Recruiter)                      */}
-      {/* ========================================================= */}
       <JobModal
         isOpen={showPostJobModal}
         onClose={() => setShowPostJobModal(false)}
@@ -295,9 +489,6 @@ export default function Dashboard() {
         defaultCompany={user?.company || (user?.role === 'recruiter' ? 'Apex Cloud Systems' : 'Romaguera-Crona')}
       />
 
-      {/* ========================================================= */}
-      {/* MODAL 2: APPLICATION TRACKER MODAL                       */}
-      {/* ========================================================= */}
       {showApplicationsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl">
@@ -310,7 +501,7 @@ export default function Dashboard() {
                   <h3 className="text-base font-bold text-slate-900">
                     {isCandidate
                       ? `My Applications Tracker (${candidateApplications.length})`
-                      : `Candidate Submissions Pool (${liveApplications.length})`}
+                      : `Candidate Submissions Pool (${displayedApplications.length})`}
                   </h3>
                   <p className="text-xs text-slate-500">
                     {isCandidate
@@ -328,7 +519,6 @@ export default function Dashboard() {
               </button>
             </div>
 
-            {/* Real-Time Search Bar */}
             <div className="pt-3 pb-1">
               <div className="relative">
                 <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -404,11 +594,18 @@ export default function Dashboard() {
                           {app.status}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-600">
-                        <span className="font-semibold text-slate-800">{app.company}</span>
-                        {app.location && ` • ${app.location}`}
-                        {app.salary && ` • ${app.salary}`}
-                      </p>
+                      {isCandidate ? (
+                        <p className="text-xs text-slate-600">
+                          <span className="font-semibold text-slate-800">{app.company}</span>
+                          {app.location && ` • ${app.location}`}
+                          {app.salary && ` • ${app.salary}`}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-slate-600 flex flex-wrap items-center gap-1.5">
+                          <span className="font-bold text-slate-900">Applicant: {app.candidateName || 'Candidate'}</span>
+                          <span className="text-[11px] text-cyan-700 font-medium">({app.candidateEmail || 'candidate@jobportal.com'})</span>
+                        </p>
+                      )}
                       <span className="text-[10px] text-slate-400 block">
                         Submitted: {app.appliedDate || app.appliedAt} &bull; Ref #{app.id.slice(-6)}
                       </span>
@@ -444,17 +641,36 @@ export default function Dashboard() {
                         <div className="flex items-center gap-1.5">
                           <button
                             type="button"
-                            onClick={() => handleAdvanceStatus(app.id, 'Shortlisted')}
-                            className="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-xs font-semibold cursor-pointer"
+                            onClick={() => {
+                              setShowApplicationsModal(false)
+                              navigate(`/profile/${app.candidateId || 'usr_cand_01'}`)
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold cursor-pointer flex items-center gap-1"
+                            title="Review applicant profile and resume"
                           >
-                            Shortlist
+                            <User className="w-3 h-3 text-purple-600" />
+                            <span>Profile</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleAdvanceStatus(app.id, 'Under Review')}
+                            className="px-2 py-1 rounded-lg bg-cyan-50 hover:bg-cyan-100 text-cyan-700 border border-cyan-200 text-xs font-semibold cursor-pointer"
+                          >
+                            Review
                           </button>
                           <button
                             type="button"
                             onClick={() => handleAdvanceStatus(app.id, 'Interview Scheduled')}
-                            className="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-semibold cursor-pointer"
+                            className="px-2 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-semibold cursor-pointer"
                           >
                             Interview
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleAdvanceStatus(app.id, 'Shortlisted')}
+                            className="px-2 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-xs font-semibold cursor-pointer"
+                          >
+                            Shortlist
                           </button>
                         </div>
                       )}
@@ -464,10 +680,9 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* Modal Footer */}
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
               <span className="text-xs text-slate-400 font-medium">
-                Showing {displayedApplications.length} of {isCandidate ? candidateApplications.length : liveApplications.length} applications
+                Showing {displayedApplications.length} of {isCandidate ? candidateApplications.length : displayedApplications.length} applications
               </span>
               <button
                 type="button"
@@ -485,9 +700,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ========================================================= */}
-      {/* MODAL 3: SAVED OPPORTUNITIES MODAL (Candidate)           */}
-      {/* ========================================================= */}
       {showSavedModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl">
@@ -510,7 +722,6 @@ export default function Dashboard() {
               </button>
             </div>
 
-            {/* Real-Time Search Bar */}
             <div className="pt-3 pb-1">
               <div className="relative">
                 <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -635,7 +846,6 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* Modal Footer */}
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
               <span className="text-xs text-slate-400 font-medium">
                 Showing {displayedSavedJobs.length} of {liveSavedJobs.length} saved jobs
@@ -656,9 +866,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ========================================================= */}
-      {/* MODAL 4: INTERVIEW CALENDAR MODAL                        */}
-      {/* ========================================================= */}
       {showInterviewsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl">
@@ -672,7 +879,9 @@ export default function Dashboard() {
                     Interview Calendar ({scheduledInterviews.length})
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Upcoming technical discussions and screening rounds
+                    {isCandidate
+                      ? 'Upcoming technical discussions and screening rounds'
+                      : 'Confirmed candidate interview rounds across your company requisitions'}
                   </p>
                 </div>
               </div>
@@ -691,18 +900,24 @@ export default function Dashboard() {
                   <Calendar className="w-10 h-10 mx-auto text-slate-300 mb-1" />
                   <h4 className="text-sm font-bold text-slate-800">No Scheduled Interviews Yet</h4>
                   <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                    When hiring partners shortlist your application and confirm an interview schedule, the calendar time and meeting link will appear here.
+                    {isCandidate
+                      ? 'When hiring partners shortlist your application and confirm an interview schedule, the calendar time and meeting link will appear here.'
+                      : 'Advance candidate applications to "Interview Scheduled" from the Submissions pool to schedule confirmed interview rounds.'}
                   </p>
                   <button
                     type="button"
                     onClick={() => {
                       setShowInterviewsModal(false)
-                      navigate('/jobs')
+                      if (isCandidate) {
+                        navigate('/jobs')
+                      } else {
+                        setShowApplicationsModal(true)
+                      }
                     }}
                     className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-xs cursor-pointer inline-flex items-center gap-1.5 transition-colors"
                   >
-                    <Search className="w-3.5 h-3.5" />
-                    <span>Apply for More Roles</span>
+                    {isCandidate ? <Search className="w-3.5 h-3.5" /> : <FileCheck className="w-3.5 h-3.5" />}
+                    <span>{isCandidate ? 'Apply for More Roles' : 'Review Candidate Submissions'}</span>
                   </button>
                 </div>
               ) : (
@@ -714,7 +929,11 @@ export default function Dashboard() {
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <h4 className="text-sm font-bold text-slate-900">{item.jobTitle}</h4>
-                        <p className="text-xs font-semibold text-purple-700">{item.company}</p>
+                        <p className="text-xs font-semibold text-purple-700">
+                          {isCandidate
+                            ? item.company
+                            : `Candidate: ${item.candidateName || 'Applicant'} (${item.candidateEmail || 'candidate@jobportal.com'})`}
+                        </p>
                         <span className="text-[11px] text-slate-500 block mt-0.5">
                           Technical Architecture & Live Coding &bull; 45 Mins
                         </span>

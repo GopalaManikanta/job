@@ -15,6 +15,7 @@ import CompanyDetailsPage from './pages/companies/CompanyDetailsPage'
 import JobsPage from './pages/jobs/JobsPage'
 import JobDetailsPage from './pages/jobs/JobDetailsPage'
 import ApplicationsPage from './pages/jobs/ApplicationsPage'
+import ReportsPage from './pages/reports/ReportsPage'
 import CandidateProfilePage from './pages/profile/CandidateProfilePage'
 
 export default function App() {
@@ -24,12 +25,9 @@ export default function App() {
         <DashboardProvider>
           <BrowserRouter>
             <Routes>
-              {/* Public Auth Routes */}
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-
-              {/* Protected Routes */}
               <Route
                 path="/dashboard"
                 element={
@@ -71,6 +69,14 @@ export default function App() {
                 }
               />
               <Route
+                path="/reports"
+                element={
+                  <ProtectedRoute>
+                    <ReportsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/companies"
                 element={
                   <ProtectedRoute>
@@ -102,13 +108,10 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* Fallbacks */}
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
 
-            {/* Global Toast Notifications */}
             <ToastContainer
               position="top-right"
               autoClose={3000}

@@ -54,7 +54,6 @@ export default function CompanyDetailsPage() {
 
   const company = companyFromContext || fetchedCompany
 
-  // Trigger visible GET request in Network tab for single company & preserve state
   useEffect(() => {
     let active = true
     if (id) {
@@ -86,7 +85,6 @@ export default function CompanyDetailsPage() {
     navigate('/login')
   }
 
-  // Handle Edit Submit
   const handleEditSubmit = async (formData) => {
     setIsSubmitting(true)
     try {
@@ -103,7 +101,6 @@ export default function CompanyDetailsPage() {
     }
   }
 
-  // Handle Delete
   const handleDeleteConfirm = async () => {
     setIsSubmitting(true)
     try {
@@ -120,7 +117,6 @@ export default function CompanyDetailsPage() {
     }
   }
 
-  // Handle Apply
   const handleApply = (job) => {
     const res = applyToJob(job)
     if (res.success) {
@@ -130,7 +126,6 @@ export default function CompanyDetailsPage() {
     }
   }
 
-  // Check if candidate already applied to this job
   const isJobApplied = (jobId) => {
     const candidateEmail = user?.email || 'candidate@jobportal.com'
     const candidateId = user?.id || 'cand_demo'
@@ -180,12 +175,11 @@ export default function CompanyDetailsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col relative overflow-x-hidden selection:bg-cyan-500 selection:text-white">
-      {/* Top Header */}
+
       <DashboardHeader user={user} onLogout={handleLogout} />
 
-      {/* Main Container */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Breadcrumb Navigation */}
+
         <div className="flex items-center justify-between">
           <nav className="flex items-center gap-2 text-xs text-slate-500 font-medium">
             <Link to="/dashboard" className="hover:text-cyan-600 transition-colors">
@@ -208,13 +202,12 @@ export default function CompanyDetailsPage() {
           </Link>
         </div>
 
-        {/* Company Identity Hero Card */}
         <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs relative overflow-hidden">
-          {/* Ambient top decoration */}
+
           <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500" />
 
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 pt-2">
-            {/* Left: Brand Identity */}
+
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
               <img
                 src={company.logo}
@@ -232,7 +225,6 @@ export default function CompanyDetailsPage() {
                   </span>
                 </div>
 
-                {/* Lead Contact Person & Username from API */}
                 <div className="flex flex-wrap items-center gap-2 text-xs">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-50 text-blue-800 font-bold border border-blue-200">
                     <UserCheck className="w-3.5 h-3.5 text-blue-600" />
@@ -250,7 +242,6 @@ export default function CompanyDetailsPage() {
                   )}
                 </div>
 
-                {/* Metadata Row */}
                 <p className="text-xs font-semibold text-slate-500 flex flex-wrap items-center gap-3 pt-1">
                   <span className="px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 font-bold">
                     {company.industry}
@@ -277,7 +268,6 @@ export default function CompanyDetailsPage() {
               </div>
             </div>
 
-            {/* Right: Actions */}
             <div className="flex flex-wrap items-center gap-2.5 shrink-0">
               {!isCandidate ? (
                 <>
@@ -326,7 +316,6 @@ export default function CompanyDetailsPage() {
             </div>
           </div>
 
-          {/* Contact Bar with Phone, Email, Website from Network Tab */}
           <div className="mt-6 pt-5 border-t border-slate-100 flex flex-wrap items-center gap-6 text-xs font-medium text-slate-600">
             {company.phone && (
               <a
@@ -365,11 +354,10 @@ export default function CompanyDetailsPage() {
           </div>
         </div>
 
-        {/* 2 Columns: Overview & Details */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left: About & Culture & Network Tab Inspector (2 cols) */}
+
           <div className="lg:col-span-2 space-y-6">
-            {/* About Card */}
+
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
               <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
                 <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
@@ -383,7 +371,6 @@ export default function CompanyDetailsPage() {
                 {company.description}
               </p>
 
-              {/* Mission & Business Focus Highlight */}
               {(company.catchPhrase || company.bs) && (
                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
@@ -404,7 +391,6 @@ export default function CompanyDetailsPage() {
               )}
             </div>
 
-            {/* Culture & Perks */}
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
               <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
                 <div className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100">
@@ -451,7 +437,6 @@ export default function CompanyDetailsPage() {
               </div>
             </div>
 
-            {/* Active Job Openings */}
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
@@ -587,7 +572,6 @@ export default function CompanyDetailsPage() {
             </div>
           </div>
 
-          {/* Right: Company Summary & Stats */}
           <div className="space-y-6">
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs space-y-4">
               <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center justify-between">
@@ -659,7 +643,6 @@ export default function CompanyDetailsPage() {
         </div>
       </main>
 
-      {/* Edit Company Modal */}
       <CompanyModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
@@ -668,7 +651,6 @@ export default function CompanyDetailsPage() {
         isSubmitting={isSubmitting}
       />
 
-      {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 text-center">
@@ -702,7 +684,6 @@ export default function CompanyDetailsPage() {
         </div>
       )}
 
-      {/* Post Job Requisition Modal */}
       <JobModal
         isOpen={showPostJobModal}
         onClose={() => setShowPostJobModal(false)}

@@ -171,7 +171,7 @@ export default function QuickActions({
 
   return (
     <div className="space-y-4">
-      {/* Section Header */}
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="p-1.5 rounded-lg bg-cyan-50 border border-cyan-100 text-cyan-600">
@@ -188,7 +188,6 @@ export default function QuickActions({
         </div>
       </div>
 
-      {/* Grid of Action Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {actions.map((action) => {
           const IconComponent = action.icon

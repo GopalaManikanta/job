@@ -33,7 +33,6 @@ import {
   Award
 } from 'lucide-react'
 
-// Suggested skill pills for fast 1-click addition
 const SUGGESTED_SKILLS = [
   'React',
   'TypeScript',
@@ -52,7 +51,6 @@ const SUGGESTED_SKILLS = [
   'CI/CD'
 ]
 
-// Sample avatar presets for quick photo pick
 const AVATAR_PRESETS = [
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300',
   'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300',
@@ -71,21 +69,17 @@ export default function CandidateProfilePage() {
   const isViewingOtherCandidate = isRecruiter && candidateId && candidateId !== user?.id
   const isRecruiterSelfProfile = isRecruiter && !candidateId
 
-  // Mode: 'view' | 'edit'
   const [mode, setMode] = useState(isViewingOtherCandidate ? 'view' : 'view')
 
-  // Profile Data State
   const targetCandidateId = candidateId || user?.id
   const [activeTargetId, setActiveTargetId] = useState(targetCandidateId)
   const [profile, setProfile] = useState(() => {
     return getCandidateProfile(targetCandidateId)
   })
 
-  // Edit Form State
   const [formData, setFormData] = useState(profile)
   const [touched, setTouched] = useState({})
 
-  // Adjust state during render if candidateId changes
   if (activeTargetId !== targetCandidateId) {
     setActiveTargetId(targetCandidateId)
     const fresh = getCandidateProfile(targetCandidateId)
@@ -93,27 +87,22 @@ export default function CandidateProfilePage() {
     setFormData(fresh)
   }
 
-  // Skills input state
   const [newSkillInput, setNewSkillInput] = useState('')
 
-  // Resume state & preview modal
   const [showResumeModal, setShowResumeModal] = useState(false)
   const [isUploadingResume, setIsUploadingResume] = useState(false)
   const fileInputRef = useRef(null)
   const resumeInputRef = useRef(null)
 
-  // Real-time Form Validation
   const validate = (data) => {
     const errors = {}
 
-    // Full Name
     if (!data.fullName || !data.fullName.trim()) {
       errors.fullName = 'Full Name is required.'
     } else if (data.fullName.trim().length < 2) {
       errors.fullName = 'Full Name must be at least 2 characters.'
     }
 
-    // Email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!data.email || !data.email.trim()) {
       errors.email = 'Email address is required.'
@@ -121,7 +110,6 @@ export default function CandidateProfilePage() {
       errors.email = 'Please provide a valid email format.'
     }
 
-    // Mobile Number
     const phoneRegex = /^[+]?[0-9\s-]{10,15}$/
     if (!data.mobileNumber || !data.mobileNumber.trim()) {
       errors.mobileNumber = 'Mobile number is required.'
@@ -129,7 +117,6 @@ export default function CandidateProfilePage() {
       errors.mobileNumber = 'Please provide a valid 10 to 15 digit phone number.'
     }
 
-    // Address
     if (!data.address?.city || !data.address.city.trim()) {
       errors.city = 'City is required.'
     }
@@ -137,12 +124,10 @@ export default function CandidateProfilePage() {
       errors.state = 'State / Province is required.'
     }
 
-    // Skills
     if (!data.skills || data.skills.length === 0) {
       errors.skills = 'Please add at least one technical or core skill.'
     }
 
-    // Experience entries validation
     if (Array.isArray(data.experience)) {
       data.experience.forEach((exp, idx) => {
         if (!exp.role || !exp.role.trim()) {
@@ -154,7 +139,6 @@ export default function CandidateProfilePage() {
       })
     }
 
-    // Education entries validation
     if (Array.isArray(data.education)) {
       data.education.forEach((edu, idx) => {
         if (!edu.degree || !edu.degree.trim()) {
@@ -169,12 +153,10 @@ export default function CandidateProfilePage() {
     return errors
   }
 
-  // Derive real-time validation errors during render
   const formErrors = useMemo(() => {
     return mode === 'edit' ? validate(formData) : {}
   }, [formData, mode])
 
-  // Profile Strength Calculation (0 - 100%)
   const profileStrength = useMemo(() => {
     let score = 0
     if (profile.fullName && profile.email) score += 20
@@ -192,7 +174,6 @@ export default function CandidateProfilePage() {
     setTouched((prev) => ({ ...prev, [field]: true }))
   }
 
-  // Field change handlers
   const handleInputChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({
@@ -212,7 +193,6 @@ export default function CandidateProfilePage() {
     }))
   }
 
-  // Photo Upload Handler (FileReader preview)
   const handlePhotoUpload = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -239,7 +219,6 @@ export default function CandidateProfilePage() {
     reader.readAsDataURL(file)
   }
 
-  // Resume Upload Handler (UI Only)
   const handleResumeUpload = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -270,11 +249,17 @@ export default function CandidateProfilePage() {
         resume: newResume
       }))
       setIsUploadingResume(false)
+
+      fetch('https://jsonplaceholder.typicode.com/photos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=UTF-8', Accept: 'application/json' },
+        body: JSON.stringify({ albumId: 1, title: newResume.fileName, url: 'https://via.placeholder.com/600/92c952' })
+      }).catch(() => {})
+
       toast.success(`Resume "${file.name}" uploaded successfully!`)
     }, 700)
   }
 
-  // Add Skill
   const handleAddSkill = (skillToAdd) => {
     const target = (skillToAdd || newSkillInput).trim()
     if (!target) return
@@ -292,7 +277,6 @@ export default function CandidateProfilePage() {
     setNewSkillInput('')
   }
 
-  // Remove Skill
   const handleRemoveSkill = (skillToRemove) => {
     setFormData((prev) => ({
       ...prev,
@@ -300,7 +284,6 @@ export default function CandidateProfilePage() {
     }))
   }
 
-  // Experience Handlers
   const handleAddExperience = () => {
     const newExp = {
       id: `exp_${Date.now()}`,
@@ -336,7 +319,6 @@ export default function CandidateProfilePage() {
     }))
   }
 
-  // Education Handlers
   const handleAddEducation = () => {
     const newEdu = {
       id: `edu_${Date.now()}`,
@@ -368,11 +350,9 @@ export default function CandidateProfilePage() {
     }))
   }
 
-  // Save Changes
   const handleSaveProfile = (e) => {
     e.preventDefault()
 
-    // Mark all touched
     const allTouched = {
       fullName: true,
       email: true,
@@ -400,7 +380,6 @@ export default function CandidateProfilePage() {
     }
   }
 
-  // Share profile link
   const handleShareProfile = () => {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(window.location.href)
@@ -408,7 +387,6 @@ export default function CandidateProfilePage() {
     }
   }
 
-  // Logout
   const handleLogout = () => {
     logout()
     toast.info('Logged out successfully.')
@@ -417,11 +395,11 @@ export default function CandidateProfilePage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col relative overflow-x-hidden selection:bg-cyan-500 selection:text-white">
-      {/* Top Header */}
+
       <DashboardHeader user={user} onLogout={handleLogout} />
 
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Breadcrumb & Top Actions */}
+
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <nav className="flex items-center gap-2 text-xs text-slate-500 font-medium">
             <Link to="/dashboard" className="hover:text-cyan-600 transition-colors">
@@ -503,7 +481,6 @@ export default function CandidateProfilePage() {
           </div>
         </div>
 
-        {/* Recruiter Notice Banner if reviewing applicant */}
         {isViewingOtherCandidate && (
           <div className="p-4 rounded-2xl bg-purple-50 border border-purple-200 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -528,12 +505,8 @@ export default function CandidateProfilePage() {
           </div>
         )}
 
-        {/* ========================================================= */}
-        {/* RECRUITER / EMPLOYER PROFILE VIEW                         */}
-        {/* ========================================================= */}
         {isRecruiterSelfProfile ? (
           <div className="space-y-6">
-            {/* 1. Recruiter Hero Banner Card */}
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs relative overflow-hidden">
               <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-purple-100/40 via-pink-50/20 to-transparent rounded-full blur-3xl pointer-events-none" />
 
@@ -608,7 +581,6 @@ export default function CandidateProfilePage() {
               </div>
             </div>
 
-            {/* 2. Recruiter Hiring Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center font-bold">
@@ -647,7 +619,6 @@ export default function CandidateProfilePage() {
               </div>
             </div>
 
-            {/* 3. Recruiter About & Enterprise Management Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
                 <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center justify-between">
@@ -704,13 +675,13 @@ export default function CandidateProfilePage() {
           </div>
         ) : mode === 'view' ? (
           <div className="space-y-6">
-            {/* 1. Header Profile Banner Card */}
+
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs relative overflow-hidden">
               <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-cyan-100/40 via-blue-50/20 to-transparent rounded-full blur-3xl pointer-events-none" />
 
               <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-                  {/* Avatar with status indicator */}
+
                   <div className="relative">
                     <img
                       src={
@@ -743,7 +714,6 @@ export default function CandidateProfilePage() {
                       {profile.headline || 'Full Stack React Engineer'}
                     </p>
 
-                    {/* Metadata Chips */}
                     <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-slate-500 font-medium">
                       <div className="flex items-center gap-1.5">
                         <MapPin className="w-3.5 h-3.5 text-slate-400" />
@@ -770,7 +740,6 @@ export default function CandidateProfilePage() {
                   </div>
                 </div>
 
-                {/* Profile Strength Score Meter */}
                 <div className="w-full md:w-56 p-4 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs space-y-2">
                   <div className="flex items-center justify-between text-xs font-bold">
                     <span className="text-slate-700 flex items-center gap-1">
@@ -794,11 +763,10 @@ export default function CandidateProfilePage() {
               </div>
             </div>
 
-            {/* 2-Column Content Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left Column (2 cols): Bio, Experience, Education */}
+
               <div className="lg:col-span-2 space-y-6">
-                {/* About Me / Professional Summary */}
+
                 <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs space-y-3">
                   <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center gap-2">
                     <User className="w-4 h-4 text-cyan-600" />
@@ -810,7 +778,6 @@ export default function CandidateProfilePage() {
                   </p>
                 </div>
 
-                {/* Work Experience */}
                 <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                     <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
@@ -831,7 +798,7 @@ export default function CandidateProfilePage() {
                     <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-200">
                       {profile.experience.map((exp) => (
                         <div key={exp.id} className="relative group">
-                          {/* Dot indicator */}
+
                           <div className="absolute -left-6 top-1 w-3.5 h-3.5 rounded-full bg-cyan-600 border-2 border-white shadow-xs" />
                           <div className="space-y-1">
                             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -861,7 +828,6 @@ export default function CandidateProfilePage() {
                   )}
                 </div>
 
-                {/* Education */}
                 <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                     <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
@@ -905,9 +871,8 @@ export default function CandidateProfilePage() {
                 </div>
               </div>
 
-              {/* Right Column (1 col): Skills, Resume Card, Contact Address */}
               <div className="space-y-6">
-                {/* Skills & Competencies */}
+
                 <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                     <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
@@ -931,7 +896,6 @@ export default function CandidateProfilePage() {
                   </div>
                 </div>
 
-                {/* Resume Card (UI Only) */}
                 <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs space-y-4">
                   <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center justify-between">
                     <span className="flex items-center gap-2">
@@ -997,7 +961,6 @@ export default function CandidateProfilePage() {
                   )}
                 </div>
 
-                {/* Address & Contact Information */}
                 <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs space-y-3 text-xs">
                   <h3 className="font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-cyan-600" />
@@ -1021,11 +984,9 @@ export default function CandidateProfilePage() {
             </div>
           </div>
         ) : (
-          /* ========================================================= */
-          /* MODE 2: EDIT PROFILE MODE WITH FORM VALIDATION             */
-          /* ========================================================= */
+
           <form onSubmit={handleSaveProfile} className="space-y-6">
-            {/* Form Action Header */}
+
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
@@ -1058,14 +1019,12 @@ export default function CandidateProfilePage() {
               </div>
             </div>
 
-            {/* Section 1: Profile Photo & Basic Information */}
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
               <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center gap-2">
                 <User className="w-4 h-4 text-cyan-600" />
                 <span>Basic Candidate Details & Photo</span>
               </h3>
 
-              {/* Photo Upload Row */}
               <div className="flex flex-col sm:flex-row items-center gap-6">
                 <div className="relative group">
                   <img
@@ -1122,9 +1081,8 @@ export default function CandidateProfilePage() {
                 </div>
               </div>
 
-              {/* Basic Fields Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {/* Full Name */}
+
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1.5">
                     Full Name <span className="text-rose-500">*</span>
@@ -1150,7 +1108,6 @@ export default function CandidateProfilePage() {
                   )}
                 </div>
 
-                {/* Email Address */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1.5">
                     Email Address <span className="text-rose-500">*</span>
@@ -1176,7 +1133,6 @@ export default function CandidateProfilePage() {
                   )}
                 </div>
 
-                {/* Mobile Number */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1.5">
                     Mobile Number <span className="text-rose-500">*</span>
@@ -1202,7 +1158,6 @@ export default function CandidateProfilePage() {
                   )}
                 </div>
 
-                {/* Professional Headline */}
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-bold text-slate-700 mb-1.5">
                     Professional Headline
@@ -1217,7 +1172,6 @@ export default function CandidateProfilePage() {
                   />
                 </div>
 
-                {/* Professional Bio */}
                 <div className="sm:col-span-2 lg:col-span-3">
                   <label className="block text-xs font-bold text-slate-700 mb-1.5">
                     Professional Bio & Career Objective
@@ -1234,7 +1188,6 @@ export default function CandidateProfilePage() {
               </div>
             </div>
 
-            {/* Section 2: Postal Address Details */}
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5">
               <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-cyan-600" />
@@ -1334,7 +1287,6 @@ export default function CandidateProfilePage() {
               </div>
             </div>
 
-            {/* Section 3: Skills Management */}
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
@@ -1346,7 +1298,6 @@ export default function CandidateProfilePage() {
                 </span>
               </div>
 
-              {/* Add Skill Input */}
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -1371,7 +1322,6 @@ export default function CandidateProfilePage() {
                 </button>
               </div>
 
-              {/* Suggestion Chips */}
               <div className="flex flex-wrap items-center gap-1.5 pt-1">
                 <span className="text-[11px] font-semibold text-slate-400 mr-1">Suggestions:</span>
                 {SUGGESTED_SKILLS.filter(
@@ -1390,7 +1340,6 @@ export default function CandidateProfilePage() {
                   ))}
               </div>
 
-              {/* Active Skills Tag List */}
               <div className="flex flex-wrap gap-2 pt-2">
                 {formData.skills?.map((skill, idx) => (
                   <span
@@ -1417,7 +1366,6 @@ export default function CandidateProfilePage() {
               )}
             </div>
 
-            {/* Section 4: Work Experience */}
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div>
@@ -1561,7 +1509,6 @@ export default function CandidateProfilePage() {
               )}
             </div>
 
-            {/* Section 5: Education */}
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div>
@@ -1691,7 +1638,6 @@ export default function CandidateProfilePage() {
               )}
             </div>
 
-            {/* Section 6: Resume Upload (UI Only) */}
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
               <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center gap-2">
                 <FileText className="w-4 h-4 text-cyan-600" />
@@ -1730,7 +1676,6 @@ export default function CandidateProfilePage() {
                 />
               </div>
 
-              {/* Current Resume Attachment */}
               {formData.resume && (
                 <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
@@ -1759,7 +1704,6 @@ export default function CandidateProfilePage() {
               )}
             </div>
 
-            {/* Bottom Sticky Action Bar */}
             <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs flex items-center justify-between gap-4">
               <span className="text-xs text-slate-500 font-medium">
                 Changes will immediately synchronize across your Candidate Dashboard and Recruiter Applicant Views.
@@ -1789,9 +1733,6 @@ export default function CandidateProfilePage() {
         )}
       </main>
 
-      {/* ========================================================= */}
-      {/* MODAL: RESUME PREVIEW MODAL (UI Only)                    */}
-      {/* ========================================================= */}
       {showResumeModal && profile.resume && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl">
@@ -1818,7 +1759,6 @@ export default function CandidateProfilePage() {
               </button>
             </div>
 
-            {/* Document Mockup View */}
             <div className="flex-1 overflow-y-auto py-6 px-4 bg-slate-50 rounded-2xl border border-slate-200 my-4 space-y-4 text-xs text-slate-700 font-sans">
               <div className="border-b border-slate-200 pb-3">
                 <h2 className="text-base font-black text-slate-900">{profile.fullName}</h2>

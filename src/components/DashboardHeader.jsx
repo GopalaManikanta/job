@@ -12,7 +12,8 @@ import {
   LayoutDashboard,
   Building2,
   User,
-  Send
+  Send,
+  BarChart3
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { useDashboard } from '../context/DashboardContext'
@@ -35,7 +36,6 @@ export default function DashboardHeader({ user, onLogout }) {
     return applications
   }, [applications, isCandidate, user])
 
-  // Initial stage starts with 0 notifications
   const [notifications, setNotifications] = useState([])
 
   const handleSearchSubmit = (e) => {
@@ -50,7 +50,7 @@ export default function DashboardHeader({ user, onLogout }) {
   return (
     <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-xl border-b border-slate-200/90 px-4 sm:px-6 lg:px-10 py-3 transition-all shadow-xs">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-        {/* Brand Logo & Mode */}
+
         <div className="flex items-center gap-3">
           <Link
             to="/dashboard"
@@ -83,7 +83,6 @@ export default function DashboardHeader({ user, onLogout }) {
           </div>
         </div>
 
-        {/* Center: Navigation Links */}
         <nav className="flex items-center gap-1 p-1 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold">
           <Link
             to="/dashboard"
@@ -139,6 +138,18 @@ export default function DashboardHeader({ user, onLogout }) {
           </Link>
 
           <Link
+            to="/reports"
+            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
+              location.pathname.startsWith('/reports')
+                ? 'bg-white text-cyan-700 shadow-xs'
+                : 'text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <BarChart3 className="w-3.5 h-3.5 text-cyan-600" />
+            <span>Reports</span>
+          </Link>
+
+          <Link
             to="/profile"
             className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
               location.pathname.startsWith('/profile')
@@ -151,7 +162,6 @@ export default function DashboardHeader({ user, onLogout }) {
           </Link>
         </nav>
 
-        {/* Global Search Bar (Responsive) */}
         <form
           onSubmit={handleSearchSubmit}
           className="hidden lg:flex flex-1 max-w-xs relative items-center"
@@ -181,9 +191,8 @@ export default function DashboardHeader({ user, onLogout }) {
           )}
         </form>
 
-        {/* Right Action Icons & User Profile */}
         <div className="flex items-center gap-3">
-          {/* Notifications Bell */}
+
           <div className="relative">
             <button
               type="button"
@@ -197,7 +206,6 @@ export default function DashboardHeader({ user, onLogout }) {
               )}
             </button>
 
-            {/* Notifications Dropdown */}
             {showNotifications && (
               <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-2xl p-4 shadow-xl z-50 animate-in fade-in zoom-in-95 duration-150">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -242,7 +250,6 @@ export default function DashboardHeader({ user, onLogout }) {
             )}
           </div>
 
-          {/* User Profile Card */}
           <div className="flex items-center gap-2.5 pl-2 border-l border-slate-200">
             <Link
               to="/profile"
@@ -272,7 +279,6 @@ export default function DashboardHeader({ user, onLogout }) {
               </div>
             </Link>
 
-            {/* Logout Button */}
             <button
               type="button"
               onClick={onLogout}

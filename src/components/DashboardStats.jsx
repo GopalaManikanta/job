@@ -13,7 +13,7 @@ export default function DashboardStats() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* 1. Application & Hiring Pipeline (2 Columns on Desktop) */}
+
       <div className="lg:col-span-2 bg-white border border-slate-200/90 rounded-2xl p-6 flex flex-col justify-between shadow-xs">
         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
@@ -36,7 +36,6 @@ export default function DashboardStats() {
           </span>
         </div>
 
-        {/* Pipeline Progression Bars */}
         <div className="space-y-4 my-5">
           {pipelineStages.map((stage) => (
             <div key={stage.name} className="space-y-1.5">
@@ -54,7 +53,7 @@ export default function DashboardStats() {
                   </span>
                 </div>
               </div>
-              {/* Progress Track */}
+
               <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
                 <div
                   className={`h-full rounded-full bg-gradient-to-r ${stage.color} transition-all duration-700 ease-out`}
@@ -65,7 +64,6 @@ export default function DashboardStats() {
           ))}
         </div>
 
-        {/* Initial Pipeline Note */}
         <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-2 text-xs text-slate-600 mb-2">
           <Info className="w-4 h-4 text-cyan-600 shrink-0" />
           <span>
@@ -79,7 +77,6 @@ export default function DashboardStats() {
           </span>
         </div>
 
-        {/* Benchmarks Footer */}
         <div className="grid grid-cols-3 gap-3 pt-3 border-t border-slate-100 text-center">
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
             <span className="text-[10px] text-slate-500 block font-medium">Target Response</span>
@@ -96,7 +93,6 @@ export default function DashboardStats() {
         </div>
       </div>
 
-      {/* 2. Target Job Categories Distribution */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-6 flex flex-col justify-between shadow-xs">
         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
@@ -115,7 +111,6 @@ export default function DashboardStats() {
           </span>
         </div>
 
-        {/* Categories Breakdown */}
         <div className="space-y-4 my-4">
           {categories.map((cat) => (
             <div key={cat.name} className="space-y-1">
@@ -133,7 +128,6 @@ export default function DashboardStats() {
           ))}
         </div>
 
-        {/* Status Banner */}
         <div className="mt-2 p-3.5 rounded-xl bg-gradient-to-r from-blue-50/70 to-indigo-50/70 border border-blue-100 flex items-center gap-3">
           <div className="p-2 rounded-lg bg-emerald-100 text-emerald-700">
             <ShieldCheck className="w-4 h-4" />

@@ -54,12 +54,10 @@ export default function JobDetailsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Find job by ID
   const job = useMemo(() => {
     return jobs.find((j) => String(j.id) === String(id)) || null
   }, [jobs, id])
 
-  // Matched Company Profile if exists
   const matchedCompany = useMemo(() => {
     if (!job) return null
     return (
@@ -69,7 +67,6 @@ export default function JobDetailsPage() {
     )
   }, [companies, job])
 
-  // Related jobs in same category or company
   const relatedJobs = useMemo(() => {
     if (!job) return []
     return jobs
@@ -83,7 +80,6 @@ export default function JobDetailsPage() {
     navigate('/login')
   }
 
-  // Candidate Application status
   const applicationRecord = useMemo(() => {
     if (!job) return null
     const candidateEmail = user?.email || 'candidate@jobportal.com'
@@ -99,7 +95,6 @@ export default function JobDetailsPage() {
     return savedJobs.some((s) => s.jobId === job.id)
   }, [savedJobs, job])
 
-  // Recruiter: Applicant pool for this specific requisition
   const jobApplications = useMemo(() => {
     if (!job) return []
     return applications.filter((a) => String(a.jobId) === String(job.id))
@@ -107,7 +102,6 @@ export default function JobDetailsPage() {
 
   const isOpen = job?.status === 'open' || job?.status === 'active'
 
-  // Apply Handler
   const handleApply = () => {
     if (!job) return
     const res = applyToJob(job)
@@ -118,7 +112,6 @@ export default function JobDetailsPage() {
     }
   }
 
-  // Toggle Status Handler
   const handleToggleStatus = () => {
     if (!job) return
     const res = toggleJobStatus(job.id)
@@ -129,7 +122,6 @@ export default function JobDetailsPage() {
     }
   }
 
-  // Edit Submit Handler
   const handleEditSubmit = (formData) => {
     setIsSubmitting(true)
     try {
@@ -145,14 +137,12 @@ export default function JobDetailsPage() {
     }
   }
 
-  // Delete Confirm Handler
   const handleDeleteConfirm = () => {
     deleteJob(job.id)
     toast.success(`Job requisition "${job.title}" removed.`)
     navigate('/jobs')
   }
 
-  // Share link handler
   const handleShare = () => {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(window.location.href)
@@ -188,12 +178,11 @@ export default function JobDetailsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col relative overflow-x-hidden selection:bg-cyan-500 selection:text-white">
-      {/* Top Header */}
+
       <DashboardHeader user={user} onLogout={handleLogout} />
 
-      {/* Main Container */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Breadcrumb Navigation */}
+
         <div className="flex items-center justify-between">
           <nav className="flex items-center gap-2 text-xs text-slate-500 font-medium">
             <Link to="/dashboard" className="hover:text-cyan-600 transition-colors">
@@ -216,13 +205,12 @@ export default function JobDetailsPage() {
           </Link>
         </div>
 
-        {/* Job Identity Hero Card */}
         <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs relative overflow-hidden">
-          {/* Top ambient strip */}
+
           <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500" />
 
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 pt-2">
-            {/* Left: Job & Company Title */}
+
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
               <img
                 src={companyLogo}
@@ -235,7 +223,7 @@ export default function JobDetailsPage() {
                   <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                     {job.title}
                   </h1>
-                  {/* Status Pill */}
+
                   <span
                     className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold border ${
                       isOpen
@@ -250,7 +238,6 @@ export default function JobDetailsPage() {
                   </span>
                 </div>
 
-                {/* Company Name & Location Row */}
                 <div className="flex flex-wrap items-center gap-3 text-xs">
                   {matchedCompany ? (
                     <Link
@@ -277,7 +264,6 @@ export default function JobDetailsPage() {
                   <span className="text-slate-900 font-black">{job.salary}</span>
                 </div>
 
-                {/* Badges Row */}
                 <div className="flex flex-wrap items-center gap-2 pt-1">
                   <span className="px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-cyan-50 text-cyan-800 border border-cyan-100">
                     {job.category}
@@ -298,10 +284,9 @@ export default function JobDetailsPage() {
               </div>
             </div>
 
-            {/* Right: Actions */}
             <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start sm:self-auto">
               {isCandidate ? (
-                /* Candidate Actions */
+
                 <>
                   <button
                     type="button"
@@ -365,7 +350,7 @@ export default function JobDetailsPage() {
                   )}
                 </>
               ) : (
-                /* Recruiter Actions */
+
                 <>
                   <button
                     type="button"
@@ -403,11 +388,10 @@ export default function JobDetailsPage() {
           </div>
         </div>
 
-        {/* 2-Column Overview Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column: Description, Responsibilities, Skills, Candidate Banner (2 cols) */}
+
           <div className="lg:col-span-2 space-y-6">
-            {/* Candidate Applied Status Banner */}
+
             {isCandidate && isApplied && (
               <div className="bg-emerald-50 border border-emerald-200 rounded-3xl p-5 flex items-start gap-4">
                 <div className="p-2 rounded-2xl bg-emerald-500 text-white shrink-0 shadow-xs">
@@ -426,7 +410,6 @@ export default function JobDetailsPage() {
               </div>
             )}
 
-            {/* Role Overview */}
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
               <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
                 <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
@@ -441,7 +424,6 @@ export default function JobDetailsPage() {
               </p>
             </div>
 
-            {/* Key Responsibilities */}
             {job.responsibilities && (
               <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
                 <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
@@ -458,7 +440,6 @@ export default function JobDetailsPage() {
               </div>
             )}
 
-            {/* Required Skills & Tech Stack */}
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
@@ -490,7 +471,6 @@ export default function JobDetailsPage() {
               </div>
             </div>
 
-            {/* Recruiter View: Live Candidate Applicant Pool */}
             {!isCandidate && (
               <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -547,7 +527,6 @@ export default function JobDetailsPage() {
               </div>
             )}
 
-            {/* Bottom Quick Apply Callout for Candidates */}
             {isCandidate && !isApplied && isOpen && (
               <div className="bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-200 rounded-3xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
@@ -569,7 +548,6 @@ export default function JobDetailsPage() {
               </div>
             )}
 
-            {/* When applied: show application review status callout */}
             {isCandidate && isApplied && (
               <div className="bg-emerald-50/70 border border-emerald-200 rounded-3xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
@@ -601,9 +579,8 @@ export default function JobDetailsPage() {
             )}
           </div>
 
-          {/* Right Column: Fast Facts & Hiring Partner Profile (1 col) */}
           <div className="space-y-6">
-            {/* Requisition Fast Facts */}
+
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs space-y-4">
               <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center justify-between">
                 <span>Requisition Fast Facts</span>
@@ -654,7 +631,6 @@ export default function JobDetailsPage() {
               </div>
             </div>
 
-            {/* Company Profile Card */}
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs space-y-4">
               <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center justify-between">
                 <span>Hiring Organization</span>
@@ -698,7 +674,6 @@ export default function JobDetailsPage() {
               )}
             </div>
 
-            {/* Related Jobs from Same Category */}
             {relatedJobs.length > 0 && (
               <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs space-y-3">
                 <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider pb-2 border-b border-slate-100">
@@ -728,7 +703,6 @@ export default function JobDetailsPage() {
         </div>
       </main>
 
-      {/* Edit Job Modal */}
       <JobModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
@@ -737,7 +711,6 @@ export default function JobDetailsPage() {
         isSubmitting={isSubmitting}
       />
 
-      {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 text-center">

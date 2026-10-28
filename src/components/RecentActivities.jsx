@@ -20,7 +20,7 @@ export default function RecentActivities() {
 
   return (
     <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-      {/* Header */}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
         <div className="flex items-center gap-2.5">
           <div className="p-2 rounded-xl bg-cyan-50 border border-cyan-100 text-cyan-600">
@@ -36,7 +36,6 @@ export default function RecentActivities() {
           </div>
         </div>
 
-        {/* Filter Pills */}
         {activities.length > 0 && (
           <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold">
             {[
@@ -61,7 +60,6 @@ export default function RecentActivities() {
         )}
       </div>
 
-      {/* Content: Clean Initial Stage Empty State vs Real Activities */}
       {filtered.length === 0 ? (
         <div className="py-12 flex flex-col items-center justify-center text-center px-4">
           <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 mb-3 shadow-xs">
@@ -88,7 +86,7 @@ export default function RecentActivities() {
                 key={act.id}
                 className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/80 px-2 rounded-xl transition-colors"
               >
-                {/* Left: Details */}
+
                 <div className="flex items-start sm:items-center gap-3.5">
                   <img
                     src={act.logo}
@@ -113,7 +111,6 @@ export default function RecentActivities() {
                   </div>
                 </div>
 
-                {/* Right: Badge */}
                 <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
                   <div className="hidden sm:flex flex-col items-end">
                     <span className="text-[11px] text-slate-400 flex items-center gap-1">

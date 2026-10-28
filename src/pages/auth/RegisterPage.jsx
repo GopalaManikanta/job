@@ -37,7 +37,6 @@ export default function RegisterPage() {
 
   const passwordValue = watch('password', '')
 
-  // Handle role change and auto-fill role-appropriate defaults if using demo data
   const handleRoleChange = (newRole) => {
     setRole(newRole)
     const currentEmail = watch('email')
@@ -50,7 +49,6 @@ export default function RegisterPage() {
     }
   }
 
-  // Live Password Strength Calculator
   const passwordStrength = useMemo(() => {
     if (!passwordValue) return { score: 0, label: 'Empty', color: 'bg-slate-700' }
     let score = 0
@@ -88,7 +86,6 @@ export default function RegisterPage() {
     }
   }
 
-  // Toast alerts if required fields are missing
   const onInvalid = (fieldErrors) => {
     if (fieldErrors.name) {
       toast.error(fieldErrors.name.message || 'Please enter your full name')
@@ -113,7 +110,7 @@ export default function RegisterPage() {
       onRoleChange={handleRoleChange}
     >
       <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4">
-        {/* Full Name */}
+
         <div>
           <label className="block text-xs font-semibold text-slate-100 mb-1.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
             Full Name
@@ -148,7 +145,6 @@ export default function RegisterPage() {
           )}
         </div>
 
-        {/* Company Name (for recruiters) */}
         {role === 'recruiter' && (
           <div>
             <label className="block text-xs font-semibold text-slate-100 mb-1.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
@@ -175,7 +171,6 @@ export default function RegisterPage() {
           </div>
         )}
 
-        {/* Email */}
         <div>
           <label className="block text-xs font-semibold text-slate-100 mb-1.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
             Email Address
@@ -210,7 +205,6 @@ export default function RegisterPage() {
           )}
         </div>
 
-        {/* Password */}
         <div>
           <label className="block text-xs font-semibold text-slate-100 mb-1.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
             Create Password
@@ -246,7 +240,6 @@ export default function RegisterPage() {
             </button>
           </div>
 
-          {/* Password Strength Meter */}
           {passwordValue && (
             <div className="mt-2 space-y-1">
               <div className="flex items-center justify-between text-[11px]">
@@ -290,7 +283,6 @@ export default function RegisterPage() {
           )}
         </div>
 
-        {/* Confirm Password */}
         <div>
           <label className="block text-xs font-semibold text-slate-100 mb-1.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
             Confirm Password
@@ -330,7 +322,6 @@ export default function RegisterPage() {
           )}
         </div>
 
-        {/* Agree Terms Checkbox */}
         <div className="pt-1">
           <label className="flex items-start gap-2.5 cursor-pointer">
             <input
@@ -371,7 +362,6 @@ export default function RegisterPage() {
           )}
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           disabled={isSubmitting}
@@ -395,7 +385,6 @@ export default function RegisterPage() {
         </button>
       </form>
 
-      {/* Switch to Login */}
       <div className="mt-6 pt-5 border-t border-white/10 text-center">
         <p className="text-xs text-slate-400">
           Already have an account?{' '}

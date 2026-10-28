@@ -58,7 +58,7 @@ export default function StatCard({
         onClick ? 'cursor-pointer' : ''
       }`}
     >
-      {/* Top Row: Icon + Status Badge */}
+
       <div className="flex items-center justify-between mb-4">
         <div className={`w-11 h-11 rounded-xl bg-gradient-to-tr ${styles.iconBg} p-0.5 shadow-sm`}>
           <div className="w-full h-full bg-white/20 backdrop-blur-xs rounded-[10px] flex items-center justify-center">
@@ -80,7 +80,6 @@ export default function StatCard({
         ) : null}
       </div>
 
-      {/* Middle: Number Value */}
       <div>
         <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none">
           {value}
@@ -88,7 +87,6 @@ export default function StatCard({
         <p className="text-xs font-semibold text-slate-500 mt-1.5">{title}</p>
       </div>
 
-      {/* Bottom Subtext */}
       {subtitle && (
         <div className="mt-3.5 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
           <span>{subtitle}</span>

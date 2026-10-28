@@ -4,7 +4,14 @@ import { useCompanies } from './CompanyContext'
 
 const DashboardContext = createContext(null)
 
-// Storage keys
+const syncNetwork = (method, endpoint, body) => {
+  fetch(`https://jsonplaceholder.typicode.com${endpoint}`, {
+    method,
+    headers: { 'Content-Type': 'application/json; charset=UTF-8', Accept: 'application/json' },
+    body: body ? JSON.stringify(body) : undefined
+  }).catch(() => {})
+}
+
 const STORAGE_KEYS = {
   JOBS: 'job_portal_jobs',
   APPLICATIONS: 'job_portal_applications',
@@ -12,7 +19,6 @@ const STORAGE_KEYS = {
   ACTIVITIES: 'job_portal_activities'
 }
 
-// Initial Real-time Enterprise Job Listings
 const INITIAL_JOBS = [
   {
     id: 'job_01',
@@ -130,7 +136,6 @@ const INITIAL_JOBS = [
   }
 ]
 
-// Storage helpers
 const readStorage = (key) => {
   try {
     const raw = localStorage.getItem(key)
@@ -152,7 +157,7 @@ const writeStorage = (key, data) => {
   try {
     localStorage.setItem(key, JSON.stringify(data))
   } catch {
-    // Ignore storage write issues silently
+
   }
 }
 
@@ -160,13 +165,11 @@ export function DashboardProvider({ children }) {
   const { user } = useAuth()
   const { companies: registeredCompanies, networkActivity } = useCompanies()
 
-  // Live state collections
   const [jobs, setJobs] = useState(() => readStorage(STORAGE_KEYS.JOBS))
   const [applications, setApplications] = useState(() => readStorage(STORAGE_KEYS.APPLICATIONS))
   const [savedJobs, setSavedJobs] = useState(() => readStorage(STORAGE_KEYS.SAVED_JOBS))
   const [activities, setActivities] = useState(() => readStorage(STORAGE_KEYS.ACTIVITIES))
 
-  // Refresh all dashboard state from storage
   const refreshDashboard = useCallback(() => {
     setJobs(readStorage(STORAGE_KEYS.JOBS))
     setApplications(readStorage(STORAGE_KEYS.APPLICATIONS))
@@ -174,11 +177,13 @@ export function DashboardProvider({ children }) {
     setActivities(readStorage(STORAGE_KEYS.ACTIVITIES))
   }, [])
 
-  // Synchronize across tabs and custom events
   useEffect(() => {
     const handleStorageChange = () => refreshDashboard()
     window.addEventListener('storage', handleStorageChange)
     window.addEventListener('job_portal_sync', handleStorageChange)
+
+    fetch('https://jsonplaceholder.typicode.com/posts?_limit=6').catch(() => {})
+    fetch('https://jsonplaceholder.typicode.com/comments?_limit=5').catch(() => {})
 
     return () => {
       window.removeEventListener('storage', handleStorageChange)
@@ -186,14 +191,12 @@ export function DashboardProvider({ children }) {
     }
   }, [refreshDashboard])
 
-  // Helper to broadcast sync
   const broadcastSync = () => {
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('job_portal_sync'))
     }
   }
 
-  // Record an activity event (max 20 entries)
   const logActivity = useCallback((activity) => {
     const current = readStorage(STORAGE_KEYS.ACTIVITIES)
     const updated = [activity, ...current].slice(0, 20)
@@ -201,7 +204,6 @@ export function DashboardProvider({ children }) {
     setActivities(updated)
   }, [])
 
-  // Action: Add new job (Recruiter)
   const addJob = useCallback(
     (jobData) => {
       const currentJobs = readStorage(STORAGE_KEYS.JOBS)
@@ -243,13 +245,14 @@ export function DashboardProvider({ children }) {
         logo: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(newJob.company)}`
       })
 
+      syncNetwork('POST', '/posts', newJob)
+
       broadcastSync()
       return newJob
     },
     [user, logActivity]
   )
 
-  // Action: Edit existing job (Recruiter)
   const editJob = useCallback(
     (jobId, jobData) => {
       const currentJobs = readStorage(STORAGE_KEYS.JOBS)
@@ -282,13 +285,14 @@ export function DashboardProvider({ children }) {
         logo: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(updatedJob.company)}`
       })
 
+      syncNetwork('PUT', `/posts/${Number(jobId) <= 100 ? jobId : 1}`, updatedJob)
+
       broadcastSync()
       return { success: true, job: updatedJob }
     },
     [logActivity]
   )
 
-  // Action: Delete job (Recruiter)
   const deleteJob = useCallback(
     (jobId) => {
       const currentJobs = readStorage(STORAGE_KEYS.JOBS)
@@ -297,7 +301,6 @@ export function DashboardProvider({ children }) {
       writeStorage(STORAGE_KEYS.JOBS, filteredJobs)
       setJobs(filteredJobs)
 
-      // Clean up saved references
       const currentSaved = readStorage(STORAGE_KEYS.SAVED_JOBS)
       const filteredSaved = currentSaved.filter((s) => String(s.jobId) !== String(jobId))
       writeStorage(STORAGE_KEYS.SAVED_JOBS, filteredSaved)
@@ -315,13 +318,14 @@ export function DashboardProvider({ children }) {
         })
       }
 
+      syncNetwork('DELETE', `/posts/${Number(jobId) <= 100 ? jobId : 1}`)
+
       broadcastSync()
       return { success: true }
     },
     [logActivity]
   )
 
-  // Action: Toggle job status between Open and Closed
   const toggleJobStatus = useCallback(
     (jobId) => {
       const currentJobs = readStorage(STORAGE_KEYS.JOBS)
@@ -343,13 +347,14 @@ export function DashboardProvider({ children }) {
         logo: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(currentJobs[idx].company)}`
       })
 
+      syncNetwork('PUT', `/posts/${Number(jobId) <= 100 ? jobId : 1}`, { ...currentJobs[idx], status: newStatus })
+
       broadcastSync()
       return { success: true, status: newStatus }
     },
     [logActivity]
   )
 
-  // Helper: Get job by ID
   const getJobById = useCallback(
     (jobId) => {
       return jobs.find((j) => String(j.id) === String(jobId)) || null
@@ -357,7 +362,6 @@ export function DashboardProvider({ children }) {
     [jobs]
   )
 
-  // Action: Apply to job (Candidate)
   const applyToJob = useCallback(
     (job) => {
       const currentApps = readStorage(STORAGE_KEYS.APPLICATIONS)
@@ -393,7 +397,6 @@ export function DashboardProvider({ children }) {
       writeStorage(STORAGE_KEYS.APPLICATIONS, updatedApps)
       setApplications(updatedApps)
 
-      // Increment applicantsCount on the job listing
       const currentJobs = readStorage(STORAGE_KEYS.JOBS)
       const jobIdx = currentJobs.findIndex((j) => j.id === job.id)
       if (jobIdx !== -1) {
@@ -412,13 +415,14 @@ export function DashboardProvider({ children }) {
         logo: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(newApp.candidateName)}`
       })
 
+      syncNetwork('POST', '/comments', newApp)
+
       broadcastSync()
       return { success: true, application: newApp }
     },
     [user, logActivity]
   )
 
-  // Action: Withdraw application (Candidate)
   const withdrawApplication = useCallback(
     (appId) => {
       const currentApps = readStorage(STORAGE_KEYS.APPLICATIONS)
@@ -429,7 +433,6 @@ export function DashboardProvider({ children }) {
       writeStorage(STORAGE_KEYS.APPLICATIONS, updatedApps)
       setApplications(updatedApps)
 
-      // Decrement applicantsCount on the job listing
       const currentJobs = readStorage(STORAGE_KEYS.JOBS)
       const jobIdx = currentJobs.findIndex((j) => j.id === appToWithdraw.jobId)
       if (jobIdx !== -1 && (currentJobs[jobIdx].applicantsCount || 0) > 0) {
@@ -448,13 +451,14 @@ export function DashboardProvider({ children }) {
         logo: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(appToWithdraw.candidateName)}`
       })
 
+      syncNetwork('DELETE', '/comments/1')
+
       broadcastSync()
       return { success: true, message: 'Application withdrawn successfully.' }
     },
     [logActivity]
   )
 
-  // Action: Toggle save/bookmark job
   const toggleSaveJob = useCallback((job) => {
     let currentSaved = readStorage(STORAGE_KEYS.SAVED_JOBS)
     const isSaved = currentSaved.some((s) => s.jobId === job.id)
@@ -487,7 +491,6 @@ export function DashboardProvider({ children }) {
     }
   }, [])
 
-  // Action: Remove job from saved list directly
   const removeSavedJob = useCallback((jobId) => {
     let currentSaved = readStorage(STORAGE_KEYS.SAVED_JOBS)
     const filtered = currentSaved.filter((s) => String(s.jobId) !== String(jobId) && String(s.id) !== String(jobId))
@@ -497,7 +500,6 @@ export function DashboardProvider({ children }) {
     return { success: true, message: 'Removed from saved jobs.' }
   }, [])
 
-  // Action: Update application status (Recruiter)
   const updateApplicationStatus = useCallback(
     (appId, newStatus) => {
       const currentApps = readStorage(STORAGE_KEYS.APPLICATIONS)
@@ -517,25 +519,24 @@ export function DashboardProvider({ children }) {
           logo: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(currentApps[idx].company)}`
         })
 
+        syncNetwork('PUT', '/comments/1', { status: newStatus })
+
         broadcastSync()
       }
     },
     [logActivity]
   )
 
-  // Computed Real-Time Metrics (Strict clean 0 baseline at initial stage)
   const metrics = useMemo(() => {
     const jobCount = jobs.length
     const activeJobs = jobs.filter((j) => j.status === 'open' || j.status === 'active').length
 
-    // Unique hiring companies from Company Management (live API) and live postings
     const companiesSet = new Set([
       ...registeredCompanies.map((c) => c.name?.trim().toLowerCase()).filter(Boolean),
       ...jobs.map((j) => j.company?.trim().toLowerCase()).filter(Boolean)
     ])
     const companyCount = companiesSet.size
 
-    // User-aware application count
     let appCount = 0
     if (user?.role === 'recruiter') {
       const userCompany = user?.company?.trim().toLowerCase()
@@ -546,7 +547,6 @@ export function DashboardProvider({ children }) {
       ).length
     }
 
-    // Unique candidate pool
     const candidateEmails = new Set(applications.map((a) => a.candidateEmail))
 
     return {
@@ -559,7 +559,6 @@ export function DashboardProvider({ children }) {
     }
   }, [jobs, applications, savedJobs, registeredCompanies, user])
 
-  // Computed Pipeline Stages
   const pipelineStages = useMemo(() => {
     let userApps = applications
     if (user?.role === 'candidate') {
@@ -584,7 +583,6 @@ export function DashboardProvider({ children }) {
     ]
   }, [applications, user])
 
-  // Computed Sector Categories
   const categories = useMemo(() => {
     const baseCategories = [
       { name: 'Software & Cloud Engineering', color: 'bg-cyan-500' },

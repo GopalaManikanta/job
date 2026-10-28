@@ -13,17 +13,15 @@ export default function AuthLayout({
 
   return (
     <div className="min-h-screen w-full relative flex flex-col justify-between overflow-x-hidden text-slate-100 selection:bg-cyan-500 selection:text-black">
-      {/* 1. 100% PURE RAZOR-SHARP 16:9 FULL-SCREEN BACKGROUND IMAGE (Zero Blur, Zero Dimming) */}
+
       <img
         src={authHeroImg}
         alt="Career Workplace"
         className="fixed inset-0 w-full h-full object-cover object-center -z-30 transition-transform duration-1000"
       />
 
-      {/* Subtle top & bottom vignette to guarantee logo & footer legibility without obscuring photo clarity */}
       <div className="fixed inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/40 -z-20 pointer-events-none" />
 
-      {/* 2. TOP BRAND BAR */}
       <header className="relative z-20 w-full px-6 lg:px-12 py-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div
@@ -65,16 +63,14 @@ export default function AuthLayout({
           </div>
         </div>
 
-        {/* Live Status Pill */}
         <div className="hidden md:flex items-center gap-2 bg-black/40 backdrop-blur-xl border border-white/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-white shadow-xl">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400" />
           <span>Talent Network &bull; Initial Launch Phase</span>
         </div>
       </header>
 
-      {/* 3. MAIN SECTION: Open Background on Left + Ultra-Stylish Transparent Floating Card on Right */}
       <main className="relative z-20 flex-1 w-full px-4 sm:px-8 lg:px-12 py-4 flex flex-col lg:flex-row items-center justify-between gap-8">
-        {/* Left ~70% Space: Clean, completely unobstructed panoramic view of the photo */}
+
         <div className="hidden lg:flex lg:flex-1 flex-col justify-end space-y-4 max-w-xl pb-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/40 backdrop-blur-xl border border-white/25 text-xs font-bold text-white w-fit shadow-xl">
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
@@ -97,10 +93,9 @@ export default function AuthLayout({
           </p>
         </div>
 
-        {/* Right ~30% Space: ULTRA-STYLISH TRANSPARENT GLASS CREDENTIAL CARD */}
         <div className="w-full lg:w-[32%] xl:w-[30%] min-w-[340px] max-w-[430px] my-auto">
           <div className="bg-slate-950/30 backdrop-blur-xl border border-white/30 rounded-3xl p-6 sm:p-7 shadow-[0_16px_48px_rgba(0,0,0,0.6)] ring-1 ring-white/20 transition-all duration-300">
-            {/* Form Title & Subtitle */}
+
             <div className="mb-5">
               <h1 className="text-2xl font-black text-white tracking-tight sm:text-3xl drop-shadow-md">
                 {title}
@@ -112,7 +107,6 @@ export default function AuthLayout({
               )}
             </div>
 
-            {/* Role Switcher Pill Bar (Translucent Glass) */}
             {showRoleToggle && onRoleChange && (
               <div className="mb-5 p-1 bg-black/40 backdrop-blur-md border border-white/20 rounded-2xl flex items-center gap-1 shadow-inner">
                 <button
@@ -143,13 +137,11 @@ export default function AuthLayout({
               </div>
             )}
 
-            {/* Form Fields / Children */}
             <div>{children}</div>
           </div>
         </div>
       </main>
 
-      {/* 4. FOOTER NOTE */}
       <footer className="relative z-20 w-full px-6 lg:px-12 py-3 text-center text-xs text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
         Secured with 256-bit TLS encryption &bull; CareerX &copy; 2026
       </footer>

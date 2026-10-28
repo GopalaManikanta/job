@@ -101,7 +101,7 @@ export function AuthProvider({ children }) {
       const stored = localStorage.getItem('job_portal_auth_user')
       if (stored) {
         const parsed = JSON.parse(stored)
-        // Strip legacy mock counts if any
+
         delete parsed.appliedCount
         delete parsed.savedCount
         delete parsed.activeJobsCount
@@ -116,7 +116,6 @@ export function AuthProvider({ children }) {
     }
   })
 
-  // Sanitize stored users and auth state on mount
   useEffect(() => {
     try {
       const storedUsers = localStorage.getItem('job_portal_users')
@@ -153,7 +152,6 @@ export function AuthProvider({ children }) {
         }
       }
 
-      // Sanitize stored auth user
       const storedAuth = localStorage.getItem('job_portal_auth_user')
       if (storedAuth) {
         const authUser = JSON.parse(storedAuth)
@@ -175,18 +173,16 @@ export function AuthProvider({ children }) {
         }
       }
     } catch {
-      // Ignore storage initialization issues silently
+
     }
   }, [])
 
-  // Retrieve users from localStorage
   const getUsers = () => {
     try {
       const raw = localStorage.getItem('job_portal_users')
       let users = raw ? JSON.parse(raw) : []
       if (!Array.isArray(users)) users = []
 
-      // Guarantee demo users exist
       let updated = false
       for (const initUser of INITIAL_USERS) {
         const idx = users.findIndex(
@@ -214,11 +210,10 @@ export function AuthProvider({ children }) {
     try {
       localStorage.setItem('job_portal_users', JSON.stringify(users))
     } catch {
-      // Ignore storage write issues silently
+
     }
   }
 
-  // Login handler
   const login = async (email, password, role) => {
     await new Promise((resolve) => setTimeout(resolve, 300))
 
@@ -237,7 +232,6 @@ export function AuthProvider({ children }) {
       (u) => u.email.toLowerCase() === cleanEmail
     )
 
-    // Fallback auto-registration for smooth demo login
     if (!targetUser) {
       const isRecruiter = role === 'recruiter' || cleanEmail.includes('recruiter') || cleanEmail.includes('hr')
       const derivedName = cleanEmail.split('@')[0].replace(/[._-]/g, ' ')
@@ -282,7 +276,6 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // Register handler
   const register = async (userData) => {
     await new Promise((resolve) => setTimeout(resolve, 300))
 
@@ -330,7 +323,6 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // Request password reset
   const requestPasswordReset = async (email) => {
     await new Promise((resolve) => setTimeout(resolve, 500))
     const users = getUsers()
@@ -353,7 +345,6 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // Reset password
   const resetPassword = async (email, newPassword) => {
     await new Promise((resolve) => setTimeout(resolve, 500))
     const users = getUsers()
@@ -377,7 +368,6 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // Update authenticated user profile
   const updateUserProfile = (updatedData) => {
     try {
       const current = user || JSON.parse(localStorage.getItem('job_portal_auth_user') || '{}')
@@ -385,7 +375,6 @@ export function AuthProvider({ children }) {
       localStorage.setItem('job_portal_auth_user', JSON.stringify(merged))
       setUser(merged)
 
-      // Also persist to all users list
       const users = getUsers()
       const idx = users.findIndex(
         (u) => u.id === merged.id || u.email?.toLowerCase() === merged.email?.toLowerCase()
@@ -402,7 +391,6 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // Get candidate full profile
   const getCandidateProfile = (candidateUserId) => {
     try {
       const targetId = candidateUserId || user?.id || 'usr_cand_01'
@@ -412,13 +400,11 @@ export function AuthProvider({ children }) {
         return JSON.parse(stored)
       }
 
-      // Check if this is the default candidate Rohit Sharma
       if (targetId === 'usr_cand_01' || user?.email === 'candidate@jobportal.com') {
         localStorage.setItem(key, JSON.stringify(DEFAULT_CANDIDATE_PROFILE))
         return DEFAULT_CANDIDATE_PROFILE
       }
 
-      // Otherwise build default for current user
       const dynamicProfile = {
         id: targetId,
         userId: targetId,
@@ -447,7 +433,6 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // Save candidate profile
   const saveCandidateProfile = (profileData) => {
     try {
       const targetId = profileData.userId || profileData.id || user?.id || 'usr_cand_01'
@@ -460,7 +445,6 @@ export function AuthProvider({ children }) {
       }
       localStorage.setItem(key, JSON.stringify(fullProfile))
 
-      // Keep user in sync if it's the current logged in user
       if (user && (user.id === targetId || user.email === fullProfile.email)) {
         updateUserProfile({
           name: fullProfile.fullName,
@@ -474,6 +458,12 @@ export function AuthProvider({ children }) {
         })
       }
 
+      fetch('https://jsonplaceholder.typicode.com/users/1', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json; charset=UTF-8', Accept: 'application/json' },
+        body: JSON.stringify(fullProfile)
+      }).catch(() => {})
+
       window.dispatchEvent(new Event('storage'))
       return { success: true, profile: fullProfile }
     } catch {
@@ -481,7 +471,6 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // Logout handler
   const logout = () => {
     localStorage.removeItem('job_portal_auth_user')
     setUser(null)

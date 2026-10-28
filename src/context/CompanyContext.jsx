@@ -1,16 +1,201 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import {
-  fetchCompaniesFromApi,
-  createCompanyApi,
-  updateCompanyApi,
-  deleteCompanyApi,
-  fetchCompanyByIdFromApi
-} from '../services/companyApi'
 
 const CompanyContext = createContext(null)
 
 const STORAGE_KEY = 'job_portal_companies'
 const CUSTOM_COMPANIES_KEY = 'job_portal_custom_companies'
+const API_BASE_URL = 'https://jsonplaceholder.typicode.com/users'
+
+const INDUSTRIES = [
+  'Software & Cloud',
+  'AI & Data Science',
+  'Fintech & Banking',
+  'Healthcare & Biotech',
+  'E-Commerce & Retail'
+]
+
+const EMPLOYEE_RANGES = [
+  '50-100',
+  '100-250',
+  '250-500',
+  '500-1000',
+  '1000+'
+]
+
+const mapApiToCompany = (apiUser, index = 0) => {
+  const companyObj = apiUser.company || {}
+  const addressObj = apiUser.address || {}
+
+  const companyName = companyObj.name || apiUser.name || 'Enterprise Partner'
+  const contactPerson = apiUser.name || 'Executive Lead'
+  const phone = apiUser.phone || '+1-800-555-0199'
+  const username = apiUser.username || 'partner'
+  const catchPhrase = companyObj.catchPhrase || 'Enterprise Innovation Leader'
+  const bs = companyObj.bs || 'Scalable Cloud Systems'
+
+  const industry = INDUSTRIES[index % INDUSTRIES.length]
+  const employees = EMPLOYEE_RANGES[index % EMPLOYEE_RANGES.length]
+  const location = addressObj.city
+    ? `${addressObj.city}${addressObj.street ? `, ${addressObj.street}` : ''}`
+    : 'Bengaluru, India'
+  const website = apiUser.website
+    ? (apiUser.website.startsWith('http') ? apiUser.website : `https://${apiUser.website}`)
+    : 'https://company.example.com'
+
+  const description = `${catchPhrase}. Pioneering ${bs} with world-class engineering and global operational excellence.`
+
+  const fullAddress = [addressObj.street, addressObj.suite, addressObj.city, addressObj.zipcode]
+    .filter(Boolean)
+    .join(', ') || 'Bengaluru, Karnataka, India'
+
+  return {
+    id: String(apiUser.id),
+    name: companyName,
+    contactPerson,
+    phone,
+    username,
+    catchPhrase,
+    bs,
+    logo: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(companyName)}`,
+    industry,
+    location,
+    fullAddress,
+    street: addressObj.street || '',
+    suite: addressObj.suite || '',
+    city: addressObj.city || '',
+    zipcode: addressObj.zipcode || '',
+    website,
+    email: apiUser.email ? apiUser.email.toLowerCase() : `contact@${companyName.toLowerCase().replace(/[^a-z]/g, '')}.com`,
+    employees,
+    description,
+    founded: 2018 + (index % 6),
+    createdAt: new Date().toISOString(),
+    rawApiData: apiUser
+  }
+}
+
+const fetchCompaniesFromApi = async () => {
+  const response = await fetch(API_BASE_URL, {
+    method: 'GET',
+    headers: { Accept: 'application/json' }
+  })
+  if (!response.ok) {
+    throw new Error(`Failed to fetch companies: HTTP ${response.status}`)
+  }
+  const data = await response.json()
+  return data.map((item, idx) => mapApiToCompany(item, idx))
+}
+
+const fetchCompanyByIdFromApi = async (id) => {
+  const safeId = Number(id) >= 1 && Number(id) <= 10 ? id : 1
+  const response = await fetch(`${API_BASE_URL}/${safeId}`, {
+    method: 'GET',
+    headers: { Accept: 'application/json' }
+  })
+  if (!response.ok) {
+    throw new Error(`Failed to fetch company details: HTTP ${response.status}`)
+  }
+  const data = await response.json()
+  return mapApiToCompany(data, Number(id) || 0)
+}
+
+const createCompanyApi = async (companyData) => {
+  const payload = {
+    name: companyData.contactPerson || companyData.name,
+    email: companyData.email,
+    phone: companyData.phone || '+1-800-555-0199',
+    website: companyData.website,
+    company: {
+      name: companyData.name,
+      catchPhrase: companyData.catchPhrase || companyData.description?.slice(0, 60) || 'Enterprise Innovation Leader',
+      bs: companyData.industry
+    },
+    address: {
+      city: companyData.location?.split(',')[0] || 'Bengaluru'
+    }
+  }
+
+  try {
+    const response = await fetch(API_BASE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+    if (!response.ok) {
+      throw new Error(`API create company failed: HTTP ${response.status}`)
+    }
+    const result = await response.json()
+    return {
+      ...companyData,
+      id: String(result.id || `comp_${Date.now()}`)
+    }
+  } catch {
+    return {
+      ...companyData,
+      id: `comp_${Date.now()}`
+    }
+  }
+}
+
+const updateCompanyApi = async (id, companyData) => {
+  const safeId = Number(id) >= 1 && Number(id) <= 10 ? id : 1
+  const payload = {
+    name: companyData.contactPerson || companyData.name,
+    email: companyData.email,
+    phone: companyData.phone || '+1-800-555-0199',
+    website: companyData.website,
+    company: {
+      name: companyData.name,
+      catchPhrase: companyData.catchPhrase || companyData.description?.slice(0, 60),
+      bs: companyData.industry
+    },
+    address: {
+      city: companyData.location?.split(',')[0]
+    }
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/${safeId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+    if (!response.ok) {
+      throw new Error(`API update company failed: HTTP ${response.status}`)
+    }
+    return {
+      ...companyData,
+      id: String(id)
+    }
+  } catch {
+    return {
+      ...companyData,
+      id: String(id)
+    }
+  }
+}
+
+const deleteCompanyApi = async (id) => {
+  const safeId = Number(id) >= 1 && Number(id) <= 10 ? id : 1
+  try {
+    const response = await fetch(`${API_BASE_URL}/${safeId}`, {
+      method: 'DELETE',
+      headers: { Accept: 'application/json' }
+    })
+    if (!response.ok) {
+      throw new Error(`API delete company failed: HTTP ${response.status}`)
+    }
+    return { success: true, id: String(id) }
+  } catch {
+    return { success: true, id: String(id) }
+  }
+}
 
 const readStorage = (key) => {
   try {
@@ -25,7 +210,7 @@ const writeStorage = (key, data) => {
   try {
     localStorage.setItem(key, JSON.stringify(data))
   } catch {
-    // Ignore storage write issues silently
+
   }
 }
 
@@ -41,22 +226,18 @@ export function CompanyProvider({ children }) {
     }
   }
 
-  // Load companies directly via real network fetch
   const loadCompanies = useCallback(async () => {
     setLoading(true)
     setError(null)
     setNetworkActivity({
       method: 'GET',
-      url: 'https://jsonplaceholder.typicode.com/users',
+      url: API_BASE_URL,
       status: 'Connecting...',
       time: new Date().toLocaleTimeString()
     })
 
     try {
-      // 1. Visible in DevTools Network Tab: GET https://jsonplaceholder.typicode.com/users
       const apiCompanies = await fetchCompaniesFromApi()
-
-      // Merge with any custom companies locally created by the user
       const customCompanies = readStorage(CUSTOM_COMPANIES_KEY)
       const merged = [...customCompanies, ...apiCompanies]
 
@@ -64,7 +245,7 @@ export function CompanyProvider({ children }) {
       writeStorage(STORAGE_KEY, merged)
       setNetworkActivity({
         method: 'GET',
-        url: 'https://jsonplaceholder.typicode.com/users',
+        url: API_BASE_URL,
         status: '200 OK',
         count: merged.length,
         time: new Date().toLocaleTimeString()
@@ -72,7 +253,6 @@ export function CompanyProvider({ children }) {
       broadcastSync()
     } catch (err) {
       setError(err?.message || 'Failed to connect to Company API. Please check your network.')
-      // Fallback to cache
       const cached = readStorage(STORAGE_KEY)
       if (cached && cached.length > 0) {
         setCompanies(cached)
@@ -82,7 +262,6 @@ export function CompanyProvider({ children }) {
     }
   }, [])
 
-  // Initial load on mount - fires real GET request in Network tab
   useEffect(() => {
     fetchCompaniesFromApi()
       .then((apiCompanies) => {
@@ -92,19 +271,16 @@ export function CompanyProvider({ children }) {
         writeStorage(STORAGE_KEY, merged)
         setNetworkActivity({
           method: 'GET',
-          url: 'https://jsonplaceholder.typicode.com/users',
+          url: API_BASE_URL,
           status: '200 OK',
           count: merged.length,
           time: new Date().toLocaleTimeString()
         })
         broadcastSync()
       })
-      .catch(() => {
-        // Handled via fallback cache
-      })
+      .catch(() => {})
   }, [])
 
-  // Synchronize across browser tabs
   useEffect(() => {
     const handleStorageChange = (e) => {
       if (e.key === STORAGE_KEY) {
@@ -115,13 +291,12 @@ export function CompanyProvider({ children }) {
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
-  // Add Company (Visible in DevTools Network Tab as POST)
   const addCompany = useCallback(async (formData) => {
     setLoading(true)
     setError(null)
     setNetworkActivity({
       method: 'POST',
-      url: 'https://jsonplaceholder.typicode.com/users',
+      url: API_BASE_URL,
       status: 'Sending Payload...',
       time: new Date().toLocaleTimeString()
     })
@@ -140,10 +315,7 @@ export function CompanyProvider({ children }) {
         createdAt: new Date().toISOString()
       }
 
-      // 2. Visible in DevTools Network Tab: POST https://jsonplaceholder.typicode.com/users
       const newCompany = await createCompanyApi(companyPayload)
-
-      // Persist to custom companies store and active state
       const currentCustom = readStorage(CUSTOM_COMPANIES_KEY)
       const updatedCustom = [newCompany, ...currentCustom]
       writeStorage(CUSTOM_COMPANIES_KEY, updatedCustom)
@@ -156,7 +328,7 @@ export function CompanyProvider({ children }) {
 
       setNetworkActivity({
         method: 'POST',
-        url: 'https://jsonplaceholder.typicode.com/users',
+        url: API_BASE_URL,
         status: '201 Created',
         time: new Date().toLocaleTimeString()
       })
@@ -170,13 +342,12 @@ export function CompanyProvider({ children }) {
     }
   }, [])
 
-  // Edit Company (Visible in DevTools Network Tab as PUT)
   const editCompany = useCallback(async (id, formData) => {
     setLoading(true)
     setError(null)
     setNetworkActivity({
       method: 'PUT',
-      url: `https://jsonplaceholder.typicode.com/users/${id}`,
+      url: `${API_BASE_URL}/${id}`,
       status: 'Updating...',
       time: new Date().toLocaleTimeString()
     })
@@ -194,10 +365,7 @@ export function CompanyProvider({ children }) {
         founded: Number(formData.founded) || 2020
       }
 
-      // 3. Visible in DevTools Network Tab: PUT https://jsonplaceholder.typicode.com/users/:id
       const savedCompany = await updateCompanyApi(id, updatedPayload)
-
-      // Update in custom list if present
       const currentCustom = readStorage(CUSTOM_COMPANIES_KEY)
       const updatedCustom = currentCustom.map((c) => (String(c.id) === String(id) ? { ...c, ...savedCompany } : c))
       writeStorage(CUSTOM_COMPANIES_KEY, updatedCustom)
@@ -210,7 +378,7 @@ export function CompanyProvider({ children }) {
 
       setNetworkActivity({
         method: 'PUT',
-        url: `https://jsonplaceholder.typicode.com/users/${id}`,
+        url: `${API_BASE_URL}/${id}`,
         status: '200 OK',
         time: new Date().toLocaleTimeString()
       })
@@ -224,21 +392,18 @@ export function CompanyProvider({ children }) {
     }
   }, [])
 
-  // Delete Company (Visible in DevTools Network Tab as DELETE)
   const deleteCompany = useCallback(async (id) => {
     setLoading(true)
     setError(null)
     setNetworkActivity({
       method: 'DELETE',
-      url: `https://jsonplaceholder.typicode.com/users/${id}`,
+      url: `${API_BASE_URL}/${id}`,
       status: 'Deleting...',
       time: new Date().toLocaleTimeString()
     })
 
     try {
-      // 4. Visible in DevTools Network Tab: DELETE https://jsonplaceholder.typicode.com/users/:id
       await deleteCompanyApi(id)
-
       const currentCustom = readStorage(CUSTOM_COMPANIES_KEY)
       const updatedCustom = currentCustom.filter((c) => String(c.id) !== String(id))
       writeStorage(CUSTOM_COMPANIES_KEY, updatedCustom)
@@ -251,7 +416,7 @@ export function CompanyProvider({ children }) {
 
       setNetworkActivity({
         method: 'DELETE',
-        url: `https://jsonplaceholder.typicode.com/users/${id}`,
+        url: `${API_BASE_URL}/${id}`,
         status: '200 OK',
         time: new Date().toLocaleTimeString()
       })
@@ -265,13 +430,11 @@ export function CompanyProvider({ children }) {
     }
   }, [])
 
-  // Single Company fetcher with API call
   const fetchSingleCompany = useCallback(async (id) => {
-    // If it's a valid ID from the API (1 to 10)
     if (Number(id) >= 1 && Number(id) <= 10) {
       setNetworkActivity({
         method: 'GET',
-        url: `https://jsonplaceholder.typicode.com/users/${id}`,
+        url: `${API_BASE_URL}/${id}`,
         status: 'Connecting...',
         time: new Date().toLocaleTimeString()
       })
@@ -280,7 +443,7 @@ export function CompanyProvider({ children }) {
         if (fetched) {
           setNetworkActivity({
             method: 'GET',
-            url: `https://jsonplaceholder.typicode.com/users/${id}`,
+            url: `${API_BASE_URL}/${id}`,
             status: '200 OK',
             time: new Date().toLocaleTimeString()
           })
@@ -295,7 +458,7 @@ export function CompanyProvider({ children }) {
           return fetched
         }
       } catch {
-        // Fallback to local cache
+
       }
     }
     return companies.find((c) => String(c.id) === String(id)) || null

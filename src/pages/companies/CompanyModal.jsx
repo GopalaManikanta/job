@@ -57,7 +57,7 @@ function CompanyFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
 
   return (
     <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 max-w-xl w-full max-h-[90vh] flex flex-col shadow-2xl">
-      {/* Modal Header */}
+
       <div className="flex items-center justify-between pb-4 border-b border-slate-100 shrink-0">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-2xl bg-cyan-50 text-cyan-600 border border-cyan-200">
@@ -81,9 +81,8 @@ function CompanyFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
         </button>
       </div>
 
-      {/* Modal Form */}
       <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto py-4 space-y-4 pr-1">
-        {/* Logo & Name Row */}
+
         <div className="flex items-center gap-4 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
           <img
             src={previewLogo}
@@ -99,7 +98,6 @@ function CompanyFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
           </div>
         </div>
 
-        {/* Company Name */}
         <div>
           <label className="block text-xs font-bold text-slate-700 mb-1">Company Name *</label>
           <input
@@ -112,7 +110,6 @@ function CompanyFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
           />
         </div>
 
-        {/* Industry & Employees Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">Industry Sector *</label>
@@ -144,7 +141,6 @@ function CompanyFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
           </div>
         </div>
 
-        {/* Location & Year Founded */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">Location *</label>
@@ -172,7 +168,6 @@ function CompanyFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
           </div>
         </div>
 
-        {/* Website & Contact Email */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">Website URL *</label>
@@ -204,7 +199,6 @@ function CompanyFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
           </div>
         </div>
 
-        {/* Custom Logo URL (Optional) */}
         <div>
           <label className="block text-xs font-bold text-slate-700 mb-1">Custom Logo URL (Optional)</label>
           <input
@@ -216,7 +210,6 @@ function CompanyFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
           />
         </div>
 
-        {/* Description */}
         <div>
           <label className="block text-xs font-bold text-slate-700 mb-1">Company Description *</label>
           <textarea
@@ -229,7 +222,6 @@ function CompanyFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
           />
         </div>
 
-        {/* Footer Controls */}
         <div className="flex items-center justify-between pt-3 border-t border-slate-100">
           {!isEdit ? (
             <button

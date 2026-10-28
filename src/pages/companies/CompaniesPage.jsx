@@ -60,14 +60,12 @@ export default function CompaniesPage() {
     deleteCompany
   } = useCompanies()
 
-  // Search & Filter & Sort state
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedIndustry, setSelectedIndustry] = useState('All Industries')
   const [selectedSort, setSelectedSort] = useState('name_asc')
   const [currentPage, setCurrentPage] = useState(1)
-  const [viewMode, setViewMode] = useState('grid') // 'grid' | 'table'
+  const [viewMode, setViewMode] = useState('grid')
 
-  // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingCompany, setEditingCompany] = useState(null)
   const [deleteCandidate, setDeleteCandidate] = useState(null)
@@ -79,7 +77,6 @@ export default function CompaniesPage() {
     navigate('/login')
   }
 
-  // Filter & Sort Pipeline across all Network Response fields
   const filteredCompanies = useMemo(() => {
     return companies
       .filter((comp) => {
@@ -128,14 +125,12 @@ export default function CompaniesPage() {
       })
   }, [companies, searchQuery, selectedIndustry, selectedSort])
 
-  // Pagination calculation
   const totalPages = Math.max(1, Math.ceil(filteredCompanies.length / ITEMS_PER_PAGE))
   const paginatedCompanies = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE
     return filteredCompanies.slice(start, start + ITEMS_PER_PAGE)
   }, [filteredCompanies, currentPage])
 
-  // Reset to page 1 on filter/search change
   const handleSearchChange = (val) => {
     setSearchQuery(val)
     setCurrentPage(1)
@@ -151,7 +146,6 @@ export default function CompaniesPage() {
     setCurrentPage(1)
   }
 
-  // Add / Edit Modal Submit
   const handleModalSubmit = async (formData) => {
     setIsSubmitting(true)
     try {
@@ -178,19 +172,16 @@ export default function CompaniesPage() {
     }
   }
 
-  // Open Edit Modal
   const handleOpenEdit = (comp) => {
     setEditingCompany(comp)
     setIsModalOpen(true)
   }
 
-  // Open Add Modal
   const handleOpenAdd = () => {
     setEditingCompany(null)
     setIsModalOpen(true)
   }
 
-  // Delete Action
   const handleDeleteConfirm = async () => {
     if (!deleteCandidate) return
     setIsSubmitting(true)
@@ -209,16 +200,14 @@ export default function CompaniesPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col relative overflow-x-hidden selection:bg-cyan-500 selection:text-white">
-      {/* Background Ambient Glow */}
+
       <div className="fixed top-0 left-1/3 -translate-x-1/2 w-[600px] h-[600px] bg-cyan-100/40 rounded-full blur-[140px] pointer-events-none -z-10" />
       <div className="fixed bottom-0 right-1/4 translate-x-1/2 w-[600px] h-[600px] bg-blue-100/30 rounded-full blur-[140px] pointer-events-none -z-10" />
 
-      {/* Top Header */}
       <DashboardHeader user={user} onLogout={handleLogout} />
 
-      {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-10 py-6 space-y-6">
-        {/* 1. Header Banner */}
+
         <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-xs font-bold text-cyan-700 shadow-xs">
@@ -264,10 +253,9 @@ export default function CompaniesPage() {
           </div>
         </div>
 
-        {/* 2. Search, Filter, Sort & View Control Bar */}
         <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs space-y-4">
           <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
-            {/* Search Input */}
+
             <div className="flex-1 relative">
               <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
               <input
@@ -288,7 +276,6 @@ export default function CompaniesPage() {
               )}
             </div>
 
-            {/* Sort Dropdown */}
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1.5 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700">
                 <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
@@ -305,7 +292,6 @@ export default function CompaniesPage() {
                 </select>
               </div>
 
-              {/* View Mode Toggle */}
               <div className="flex items-center p-1 bg-slate-100 border border-slate-200 rounded-xl">
                 <button
                   type="button"
@@ -331,7 +317,6 @@ export default function CompaniesPage() {
             </div>
           </div>
 
-          {/* Industry Filter Pills */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 text-xs">
             <span className="text-slate-400 font-semibold flex items-center gap-1 mr-1 shrink-0">
               <Filter className="w-3.5 h-3.5" />
@@ -354,7 +339,6 @@ export default function CompaniesPage() {
           </div>
         </div>
 
-        {/* 3. Error Banner */}
         {error && (
           <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center justify-between gap-3 shadow-xs">
             <div className="flex items-center gap-2">
@@ -371,9 +355,8 @@ export default function CompaniesPage() {
           </div>
         )}
 
-        {/* 4. Company List / Grid / Skeletons */}
         {loading && companies.length === 0 ? (
-          /* Loading Skeletons */
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {[1, 2, 3, 4, 5, 6].map((n) => (
               <div
@@ -396,7 +379,7 @@ export default function CompaniesPage() {
             ))}
           </div>
         ) : filteredCompanies.length === 0 ? (
-          /* Empty State */
+
           <div className="bg-white border border-slate-200/90 rounded-3xl p-12 text-center shadow-xs">
             <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 mx-auto mb-3 shadow-xs">
               <Building2 className="w-8 h-8 text-slate-400" />
@@ -417,7 +400,7 @@ export default function CompaniesPage() {
             </button>
           </div>
         ) : viewMode === 'grid' ? (
-          /* Grid View */
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {paginatedCompanies.map((company) => (
               <div
@@ -425,7 +408,7 @@ export default function CompaniesPage() {
                 className="group relative bg-white border border-slate-200/90 rounded-2xl p-5 hover:border-cyan-300 hover:shadow-md transition-all duration-300 flex flex-col justify-between shadow-xs"
               >
                 <div>
-                  {/* Top Bar: Logo + Name + Industry Badge */}
+
                   <div className="flex items-start justify-between gap-3 mb-3.5">
                     <div className="flex items-center gap-3">
                       <img
@@ -447,7 +430,6 @@ export default function CompaniesPage() {
                     </div>
                   </div>
 
-                  {/* Metadata Row: Location + Employees */}
                   <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-2.5 font-medium">
                     <span className="flex items-center gap-1">
                       <MapPin className="w-3.5 h-3.5 text-slate-400" />
@@ -460,7 +442,6 @@ export default function CompaniesPage() {
                     </span>
                   </div>
 
-                  {/* Representative & Phone from API */}
                   {company.contactPerson && (
                     <div className="flex items-center justify-between text-[11px] px-2.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 mb-2.5 text-slate-600">
                       <span className="font-semibold truncate">
@@ -474,19 +455,16 @@ export default function CompaniesPage() {
                     </div>
                   )}
 
-                  {/* Catchphrase from API */}
                   {company.catchPhrase && (
                     <p className="text-[11px] text-cyan-800 italic bg-cyan-50/70 border border-cyan-100 rounded-xl px-2.5 py-1 mb-2.5 line-clamp-1">
                       &ldquo;{company.catchPhrase}&rdquo;
                     </p>
                   )}
 
-                  {/* Description snippet */}
                   <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed mb-4">
                     {company.description}
                   </p>
 
-                  {/* Contact Links */}
                   <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-500 mb-3 pt-3 border-t border-slate-100">
                     {company.website && (
                       <a
@@ -512,7 +490,6 @@ export default function CompaniesPage() {
                   </div>
                 </div>
 
-                {/* Footer Controls */}
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                   <Link
                     to={`/companies/${company.id}`}
@@ -549,7 +526,7 @@ export default function CompaniesPage() {
             ))}
           </div>
         ) : (
-          /* Table / List View */
+
           <div className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
@@ -643,7 +620,6 @@ export default function CompaniesPage() {
           </div>
         )}
 
-        {/* 5. Pagination Bar */}
         {filteredCompanies.length > 0 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
             <span className="text-xs text-slate-500 font-medium">
@@ -689,7 +665,6 @@ export default function CompaniesPage() {
         )}
       </main>
 
-      {/* Add / Edit Modal */}
       <CompanyModal
         isOpen={isModalOpen}
         onClose={() => {
@@ -701,7 +676,6 @@ export default function CompaniesPage() {
         isSubmitting={isSubmitting}
       />
 
-      {/* Delete Confirmation Modal */}
       {deleteCandidate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 text-center">

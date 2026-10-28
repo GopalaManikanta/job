@@ -132,7 +132,7 @@ function JobFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
 
   return (
     <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl">
-      {/* Header */}
+
       <div className="flex items-center justify-between pb-4 border-b border-slate-100 shrink-0">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-2xl bg-cyan-50 text-cyan-600 border border-cyan-200">
@@ -158,9 +158,8 @@ function JobFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
         </button>
       </div>
 
-      {/* Form Content */}
       <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto py-4 space-y-4 pr-1">
-        {/* Status Toggle & Quick Fill Banner */}
+
         <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-slate-700">Job Requisition Status:</span>
@@ -202,7 +201,6 @@ function JobFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
           )}
         </div>
 
-        {/* Job Title */}
         <div>
           <label className="block text-xs font-bold text-slate-700 mb-1">
             Job Title <span className="text-rose-500">*</span>
@@ -217,7 +215,6 @@ function JobFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
           />
         </div>
 
-        {/* Company & Category */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
@@ -257,7 +254,6 @@ function JobFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
           </div>
         </div>
 
-        {/* Employment Type & Experience Level */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
@@ -294,7 +290,6 @@ function JobFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
           </div>
         </div>
 
-        {/* Salary Range & Location */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
@@ -325,7 +320,6 @@ function JobFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
           </div>
         </div>
 
-        {/* Application Deadline */}
         <div>
           <label className="block text-xs font-bold text-slate-700 mb-1">
             Application Deadline <span className="text-rose-500">*</span>
@@ -342,7 +336,6 @@ function JobFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
           </div>
         </div>
 
-        {/* Required Skills (Interactive Chip Tag Input) */}
         <div>
           <label className="block text-xs font-bold text-slate-700 mb-1">
             Required Skills <span className="text-rose-500">*</span>
@@ -366,7 +359,6 @@ function JobFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
             </button>
           </div>
 
-          {/* Active Skills Chips */}
           <div className="flex flex-wrap items-center gap-1.5 min-h-[32px] p-2 rounded-xl bg-slate-50/70 border border-slate-200/70 mb-2">
             {formData.skills.length === 0 ? (
               <span className="text-[11px] text-slate-400 italic">No skills selected yet.</span>
@@ -389,7 +381,6 @@ function JobFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
             )}
           </div>
 
-          {/* Quick presets */}
           <div className="flex flex-wrap items-center gap-1 text-[11px]">
             <span className="text-slate-400 font-medium mr-1">Quick Presets:</span>
             {POPULAR_SKILL_PRESETS.map((p) => {
@@ -413,7 +404,6 @@ function JobFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
           </div>
         </div>
 
-        {/* Job Description */}
         <div>
           <label className="block text-xs font-bold text-slate-700 mb-1">
             Job Description <span className="text-rose-500">*</span>
@@ -428,7 +418,6 @@ function JobFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
           />
         </div>
 
-        {/* Core Responsibilities */}
         <div>
           <label className="block text-xs font-bold text-slate-700 mb-1">
             Key Responsibilities <span className="text-rose-500">*</span>
@@ -443,7 +432,6 @@ function JobFormContent({ initialData, onClose, onSubmit, isSubmitting }) {
           />
         </div>
 
-        {/* Footer Controls */}
         <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
           <button
             type="button"

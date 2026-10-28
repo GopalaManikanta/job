@@ -31,7 +31,6 @@ export default function LoginPage() {
     }
   })
 
-  // Synchronize credentials when role tab is clicked
   const handleRoleChange = (newRole) => {
     setRole(newRole)
     const currentEmail = watch('email')
@@ -42,7 +41,6 @@ export default function LoginPage() {
     }
   }
 
-  // Form submission handler
   const onSubmit = async (data) => {
     setIsSubmitting(true)
     try {
@@ -60,7 +58,6 @@ export default function LoginPage() {
     }
   }
 
-  // Immediate toast feedback on form validation issues
   const onInvalid = (fieldErrors) => {
     if (fieldErrors.email) {
       toast.error(fieldErrors.email.message || 'Please enter a valid email address')
@@ -69,7 +66,6 @@ export default function LoginPage() {
     }
   }
 
-  // 1-Click Demo Login shortcut
   const handleQuickDemo = async (demoRole) => {
     setRole(demoRole)
     const demoCreds =
@@ -103,7 +99,7 @@ export default function LoginPage() {
       activeRole={role}
       onRoleChange={handleRoleChange}
     >
-      {/* 1-Click Quick Demo Bar (Translucent Glass) */}
+
       <div
         className={`mb-6 p-3.5 rounded-2xl border transition-all duration-300 backdrop-blur-md ${
           role === 'candidate'
@@ -152,7 +148,7 @@ export default function LoginPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4">
-        {/* Email Field */}
+
         <div>
           <label className="block text-xs font-semibold text-slate-100 mb-1.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
             Work or Personal Email
@@ -187,7 +183,6 @@ export default function LoginPage() {
           )}
         </div>
 
-        {/* Password Field */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <label className="text-xs font-semibold text-slate-100 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
@@ -242,7 +237,6 @@ export default function LoginPage() {
           )}
         </div>
 
-        {/* Remember Me */}
         <div className="flex items-center justify-between pt-1">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -256,7 +250,6 @@ export default function LoginPage() {
           </label>
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           disabled={isSubmitting}
@@ -280,7 +273,6 @@ export default function LoginPage() {
         </button>
       </form>
 
-      {/* Switch to Register */}
       <div className="mt-6 pt-5 border-t border-white/10 text-center">
         <p className="text-xs text-slate-400">
           New to CareerX?{' '}

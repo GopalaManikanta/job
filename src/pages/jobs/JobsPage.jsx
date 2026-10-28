@@ -78,20 +78,18 @@ export default function JobsPage() {
 
   const isCandidate = user?.role === 'candidate'
 
-  // Filters & Search State
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedLocation, setSelectedLocation] = useState('All Locations')
   const [selectedType, setSelectedType] = useState('All Types')
   const [selectedExperience, setSelectedExperience] = useState('All Levels')
   const [selectedSalaryRange, setSelectedSalaryRange] = useState('All Salaries')
   const [selectedCategory, setSelectedCategory] = useState('All Categories')
-  const [selectedStatus, setSelectedStatus] = useState('all') // 'all' | 'open' | 'closed'
-  const [selectedSort, setSelectedSort] = useState('newest') // 'newest' | 'salary_desc' | 'salary_asc' | 'deadline_asc' | 'title_asc'
-  const [recruiterScope, setRecruiterScope] = useState('all') // 'all' | 'my_company'
-  const [viewMode, setViewMode] = useState('grid') // 'grid' | 'table'
+  const [selectedStatus, setSelectedStatus] = useState('all')
+  const [selectedSort, setSelectedSort] = useState('newest')
+  const [recruiterScope, setRecruiterScope] = useState('all')
+  const [viewMode, setViewMode] = useState('grid')
   const [currentPage, setCurrentPage] = useState(1)
 
-  // Modal States
   const [isJobModalOpen, setIsJobModalOpen] = useState(false)
   const [editingJob, setEditingJob] = useState(null)
   const [deleteCandidate, setDeleteCandidate] = useState(null)
@@ -103,7 +101,6 @@ export default function JobsPage() {
     navigate('/login')
   }
 
-  // Dynamic Locations extracted from current jobs
   const availableLocations = useMemo(() => {
     const locSet = new Set(LOCATION_OPTIONS)
     jobs.forEach((j) => {
@@ -119,7 +116,6 @@ export default function JobsPage() {
     return Array.from(locSet)
   }, [jobs])
 
-  // Count of postings belonging to the logged-in recruiter's company
   const myCompanyCount = useMemo(() => {
     if (isCandidate) return 0
     const userCompany = user?.company?.trim().toLowerCase()
@@ -131,11 +127,10 @@ export default function JobsPage() {
     }).length
   }, [jobs, user, isCandidate])
 
-  // Filter & Search Pipeline
   const filteredJobs = useMemo(() => {
     return jobs
       .filter((job) => {
-        // Recruiter Scope Filter
+
         if (!isCandidate && recruiterScope === 'my_company') {
           const userCompany = user?.company?.trim().toLowerCase()
           const jobCompany = job.company?.trim().toLowerCase()
@@ -148,7 +143,6 @@ export default function JobsPage() {
           }
         }
 
-        // Search Query Filter (Title, Company, Location, Category, Skills, Description, Type)
         const q = searchQuery.trim().toLowerCase()
         if (q) {
           const matchesTitle = job.title?.toLowerCase().includes(q)
@@ -165,7 +159,6 @@ export default function JobsPage() {
           }
         }
 
-        // Location Filter
         if (selectedLocation !== 'All Locations') {
           const locLower = (job.location || '').toLowerCase()
           const selLower = selectedLocation.toLowerCase()
@@ -178,7 +171,6 @@ export default function JobsPage() {
           }
         }
 
-        // Employment Type Filter
         if (selectedType !== 'All Types') {
           const jobTypeLower = (job.type || '').toLowerCase()
           const selTypeLower = selectedType.toLowerCase()
@@ -189,7 +181,6 @@ export default function JobsPage() {
           }
         }
 
-        // Experience Level Filter
         if (selectedExperience !== 'All Levels') {
           const jobExp = (job.experienceLevel || '').toLowerCase()
           const selExp = selectedExperience.toLowerCase().split('(')[0].trim()
@@ -198,7 +189,6 @@ export default function JobsPage() {
           }
         }
 
-        // Salary Range Filter
         if (selectedSalaryRange !== 'All Salaries') {
           const { min, max } = parseSalaryNumbers(job.salary)
           if (selectedSalaryRange === 'under_15') {
@@ -212,12 +202,10 @@ export default function JobsPage() {
           }
         }
 
-        // Job Category Filter
         if (selectedCategory !== 'All Categories' && job.category !== selectedCategory) {
           return false
         }
 
-        // Status Filter
         if (selectedStatus === 'open' && job.status !== 'open' && job.status !== 'active') {
           return false
         }
@@ -267,14 +255,12 @@ export default function JobsPage() {
     selectedSort
   ])
 
-  // Pagination calculation
   const totalPages = Math.max(1, Math.ceil(filteredJobs.length / ITEMS_PER_PAGE))
   const paginatedJobs = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE
     return filteredJobs.slice(start, start + ITEMS_PER_PAGE)
   }, [filteredJobs, currentPage])
 
-  // Handlers for state changes
   const handleSearchChange = (val) => {
     setSearchQuery(val)
     setCurrentPage(1)
@@ -292,7 +278,6 @@ export default function JobsPage() {
     setCurrentPage(1)
   }
 
-  // Create / Edit Submit Handler
   const handleJobModalSubmit = async (formData) => {
     setIsSubmitting(true)
     try {
@@ -315,19 +300,16 @@ export default function JobsPage() {
     }
   }
 
-  // Open Edit
   const handleOpenEdit = (job) => {
     setEditingJob(job)
     setIsJobModalOpen(true)
   }
 
-  // Open Create
   const handleOpenCreate = () => {
     setEditingJob(null)
     setIsJobModalOpen(true)
   }
 
-  // Toggle Job Status (Open/Closed)
   const handleToggleStatus = (job) => {
     const res = toggleJobStatus(job.id)
     if (res.success) {
@@ -337,7 +319,6 @@ export default function JobsPage() {
     }
   }
 
-  // Delete Confirm
   const handleDeleteConfirm = () => {
     if (!deleteCandidate) return
     deleteJob(deleteCandidate.id)
@@ -345,7 +326,6 @@ export default function JobsPage() {
     setDeleteCandidate(null)
   }
 
-  // Candidate: Quick Apply
   const handleCandidateApply = (job) => {
     const res = applyToJob(job)
     if (res.success) {
@@ -355,7 +335,6 @@ export default function JobsPage() {
     }
   }
 
-  // Candidate: Check if applied
   const isJobApplied = (jobId) => {
     const candidateEmail = user?.email || 'candidate@jobportal.com'
     const candidateId = user?.id || 'cand_demo'
@@ -364,7 +343,6 @@ export default function JobsPage() {
     )
   }
 
-  // Candidate: Check if saved
   const isJobSaved = (jobId) => {
     return savedJobs.some((s) => s.jobId === jobId)
   }
@@ -381,16 +359,14 @@ export default function JobsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col relative overflow-x-hidden selection:bg-cyan-500 selection:text-white">
-      {/* Background Ambient Glow */}
+
       <div className="fixed top-0 left-1/3 -translate-x-1/2 w-[600px] h-[600px] bg-cyan-100/40 rounded-full blur-[140px] pointer-events-none -z-10" />
       <div className="fixed bottom-0 right-1/4 translate-x-1/2 w-[600px] h-[600px] bg-blue-100/30 rounded-full blur-[140px] pointer-events-none -z-10" />
 
-      {/* Top Header */}
       <DashboardHeader user={user} onLogout={handleLogout} />
 
-      {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-10 py-6 space-y-6">
-        {/* Header Hero Banner */}
+
         <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-xs font-bold text-cyan-700 shadow-xs">
@@ -408,7 +384,7 @@ export default function JobsPage() {
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            {/* Recruiter "Post Job" Button */}
+
             {!isCandidate ? (
               <button
                 type="button"
@@ -430,11 +406,10 @@ export default function JobsPage() {
           </div>
         </div>
 
-        {/* Search, Filter, Sort Toolbar */}
         <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs space-y-4">
-          {/* Top Row: Search Input + Sort Dropdown + Grid/Table Toggle */}
+
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            {/* Search Input with Clear Button */}
+
             <div className="relative flex-1">
               <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
               <input
@@ -456,9 +431,8 @@ export default function JobsPage() {
               )}
             </div>
 
-            {/* View Mode & Sort Dropdown */}
             <div className="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
-              {/* Sort Dropdown */}
+
               <select
                 value={selectedSort}
                 onChange={(e) => setSelectedSort(e.target.value)}
@@ -471,7 +445,6 @@ export default function JobsPage() {
                 <option value="title_asc">Sort: Job Title (A - Z)</option>
               </select>
 
-              {/* View Toggle */}
               <div className="flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200 shadow-xs">
                 <button
                   type="button"
@@ -501,9 +474,8 @@ export default function JobsPage() {
             </div>
           </div>
 
-          {/* Secondary Filter Row: Recruiter Scope, Location, Type, Experience, Salary, Category, Status */}
           <div className="flex flex-wrap items-center gap-2.5 pt-3 border-t border-slate-100 text-xs">
-            {/* Recruiter Scope Toggle Tabs */}
+
             {!isCandidate && (
               <div className="flex items-center gap-1 p-0.5 bg-slate-100 rounded-xl border border-slate-200 shadow-2xs mr-1">
                 <button
@@ -538,7 +510,6 @@ export default function JobsPage() {
               </div>
             )}
 
-            {/* Location Filter */}
             <select
               value={selectedLocation}
               onChange={(e) => {
@@ -554,7 +525,6 @@ export default function JobsPage() {
               ))}
             </select>
 
-            {/* Employment Type Filter */}
             <select
               value={selectedType}
               onChange={(e) => {
@@ -571,7 +541,6 @@ export default function JobsPage() {
               ))}
             </select>
 
-            {/* Experience Level Filter */}
             <select
               value={selectedExperience}
               onChange={(e) => {
@@ -588,7 +557,6 @@ export default function JobsPage() {
               ))}
             </select>
 
-            {/* Salary Range Filter */}
             <select
               value={selectedSalaryRange}
               onChange={(e) => {
@@ -604,7 +572,6 @@ export default function JobsPage() {
               ))}
             </select>
 
-            {/* Category Filter */}
             <select
               value={selectedCategory}
               onChange={(e) => {
@@ -621,7 +588,6 @@ export default function JobsPage() {
               ))}
             </select>
 
-            {/* Job Status Filter */}
             <select
               value={selectedStatus}
               onChange={(e) => {
@@ -635,7 +601,6 @@ export default function JobsPage() {
               <option value="closed">Status: Closed Only</option>
             </select>
 
-            {/* Active Filters Clear Button */}
             {activeFiltersCount > 0 && (
               <button
                 type="button"
@@ -654,9 +619,8 @@ export default function JobsPage() {
           </div>
         </div>
 
-        {/* Content: Grid or Table View */}
         {filteredJobs.length === 0 ? (
-          /* Empty State */
+
           <div className="bg-white border border-slate-200/90 rounded-3xl p-12 text-center shadow-xs">
             <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 mx-auto mb-3 shadow-xs">
               <Briefcase className="w-8 h-8 text-slate-400" />
@@ -685,7 +649,7 @@ export default function JobsPage() {
             </div>
           </div>
         ) : viewMode === 'grid' ? (
-          /* Grid View */
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {paginatedJobs.map((job) => {
               const isOpen = job.status === 'open' || job.status === 'active'
@@ -699,7 +663,7 @@ export default function JobsPage() {
                   className="group relative bg-white border border-slate-200/90 rounded-2xl p-5 hover:border-cyan-300 hover:shadow-md transition-all duration-300 flex flex-col justify-between shadow-xs"
                 >
                   <div>
-                    {/* Top Bar: Company Logo + Name + Status Pill */}
+
                     <div className="flex items-start justify-between gap-3 mb-3.5">
                       <div className="flex items-center gap-3">
                         <img
@@ -718,7 +682,6 @@ export default function JobsPage() {
                         </div>
                       </div>
 
-                      {/* Status Badge */}
                       <span
                         className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border shadow-2xs ${
                           isOpen
@@ -735,7 +698,6 @@ export default function JobsPage() {
                       </span>
                     </div>
 
-                    {/* Job Title */}
                     <Link
                       to={`/jobs/${job.id}`}
                       className="text-sm font-black text-slate-900 group-hover:text-cyan-700 transition-colors line-clamp-1 mb-2 block"
@@ -743,7 +705,6 @@ export default function JobsPage() {
                       {job.title}
                     </Link>
 
-                    {/* Badges Row: Category, Type, Experience */}
                     <div className="flex flex-wrap items-center gap-1.5 mb-3">
                       <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-cyan-50 text-cyan-700 border border-cyan-100">
                         {job.category}
@@ -756,7 +717,6 @@ export default function JobsPage() {
                       </span>
                     </div>
 
-                    {/* Metadata: Location, Salary */}
                     <div className="space-y-1 text-xs text-slate-600 mb-3 font-medium">
                       <div className="flex items-center gap-1.5 text-slate-500">
                         <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
@@ -773,7 +733,6 @@ export default function JobsPage() {
                       </div>
                     </div>
 
-                    {/* Skills Chips */}
                     {Array.isArray(job.skills) && job.skills.length > 0 && (
                       <div className="flex flex-wrap items-center gap-1 mb-3 pt-2 border-t border-slate-100">
                         {job.skills.slice(0, 4).map((skill) => (
@@ -793,7 +752,6 @@ export default function JobsPage() {
                     )}
                   </div>
 
-                  {/* Footer Actions */}
                   <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                     <Link
                       to={`/jobs/${job.id}`}
@@ -804,7 +762,7 @@ export default function JobsPage() {
                     </Link>
 
                     <div className="flex items-center gap-1.5">
-                      {/* Candidate Actions */}
+
                       {isCandidate ? (
                         <>
                           <button
@@ -841,7 +799,7 @@ export default function JobsPage() {
                           )}
                         </>
                       ) : (
-                        /* Recruiter Actions */
+
                         <>
                           <span
                             className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-100 text-slate-600 border border-slate-200/80 text-[11px] font-semibold"
@@ -890,7 +848,7 @@ export default function JobsPage() {
             })}
           </div>
         ) : (
-          /* Table View */
+
           <div className="bg-white border border-slate-200/90 rounded-3xl overflow-hidden shadow-xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
@@ -1023,7 +981,6 @@ export default function JobsPage() {
           </div>
         )}
 
-        {/* Pagination Bar */}
         {totalPages > 1 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-200/60">
             <span className="text-xs text-slate-500 font-medium">
@@ -1074,7 +1031,6 @@ export default function JobsPage() {
         )}
       </main>
 
-      {/* Create / Edit Job Modal */}
       <JobModal
         isOpen={isJobModalOpen}
         onClose={() => {
@@ -1086,7 +1042,6 @@ export default function JobsPage() {
         isSubmitting={isSubmitting}
       />
 
-      {/* Delete Confirmation Modal */}
       {deleteCandidate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 text-center">

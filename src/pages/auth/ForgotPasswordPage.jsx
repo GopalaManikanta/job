@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext'
 import AuthLayout from './AuthLayout'
 
 export default function ForgotPasswordPage() {
-  const [step, setStep] = useState(1) // 1: Email, 2: OTP, 3: New Password, 4: Success
+  const [step, setStep] = useState(1)
   const [userEmail, setUserEmail] = useState('')
   const [generatedOtp, setGeneratedOtp] = useState('')
   const [timer, setTimer] = useState(60)
@@ -18,7 +18,6 @@ export default function ForgotPasswordPage() {
   const { requestPasswordReset, resetPassword } = useAuth()
   const navigate = useNavigate()
 
-  // Countdown timer for Step 2
   useEffect(() => {
     let interval = null
     if (step === 2 && timer > 0) {
@@ -27,12 +26,10 @@ export default function ForgotPasswordPage() {
     return () => clearInterval(interval)
   }, [step, timer])
 
-  // Form handlers
   const emailForm = useForm({ defaultValues: { email: '' } })
   const otpForm = useForm({ defaultValues: { otp: '' } })
   const resetForm = useForm({ defaultValues: { newPassword: '', confirmNewPassword: '' } })
 
-  // Step 1: Send reset code
   const handleEmailSubmit = async (data) => {
     setIsSubmitting(true)
     try {
@@ -51,7 +48,6 @@ export default function ForgotPasswordPage() {
     }
   }
 
-  // Step 2: Verify OTP
   const handleOtpSubmit = async (data) => {
     setIsSubmitting(true)
     await new Promise((resolve) => setTimeout(resolve, 500))
@@ -65,7 +61,6 @@ export default function ForgotPasswordPage() {
     }
   }
 
-  // Step 3: Set new password
   const handleResetSubmit = async (data) => {
     setIsSubmitting(true)
     try {
@@ -95,7 +90,7 @@ export default function ForgotPasswordPage() {
       }
       showRoleToggle={false}
     >
-      {/* Progress Steps Indicator */}
+
       {step < 4 && (
         <div className="mb-6 flex items-center justify-between">
           {[1, 2, 3].map((s) => (
@@ -123,7 +118,6 @@ export default function ForgotPasswordPage() {
         </div>
       )}
 
-      {/* STEP 1: Enter Email */}
       {step === 1 && (
         <form onSubmit={emailForm.handleSubmit(handleEmailSubmit)} className="space-y-4">
           <div>
@@ -174,10 +168,9 @@ export default function ForgotPasswordPage() {
         </form>
       )}
 
-      {/* STEP 2: Verify Code */}
       {step === 2 && (
         <form onSubmit={otpForm.handleSubmit(handleOtpSubmit)} className="space-y-4">
-          {/* Quick Demo Code Prompt */}
+
           <div className="p-3 bg-cyan-950/25 border border-cyan-500/30 rounded-xl flex items-center justify-between text-xs">
             <span className="text-cyan-300">
               Demo Code: <strong className="text-white font-mono tracking-widest">{generatedOtp}</strong>
@@ -260,7 +253,6 @@ export default function ForgotPasswordPage() {
         </form>
       )}
 
-      {/* STEP 3: Reset Password */}
       {step === 3 && (
         <form onSubmit={resetForm.handleSubmit(handleResetSubmit)} className="space-y-4">
           <div>
@@ -342,7 +334,6 @@ export default function ForgotPasswordPage() {
         </form>
       )}
 
-      {/* STEP 4: Success View */}
       {step === 4 && (
         <div className="text-center py-4 space-y-4">
           <div className="w-16 h-16 mx-auto rounded-full bg-cyan-500/15 text-cyan-400 flex items-center justify-center border border-cyan-500/30 shadow-lg shadow-cyan-500/20">
@@ -365,7 +356,6 @@ export default function ForgotPasswordPage() {
         </div>
       )}
 
-      {/* Back to Login link */}
       <div className="mt-6 pt-5 border-t border-white/10 text-center">
         <Link
           to="/login"

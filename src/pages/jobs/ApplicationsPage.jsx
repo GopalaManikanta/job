@@ -17,11 +17,11 @@ import {
   Send,
   FileText,
   DollarSign,
-  AlertCircle
+  AlertCircle,
+  User
 } from 'lucide-react'
 import DashboardHeader from '../../components/DashboardHeader'
 
-// Pipeline stages for candidate visual tracker
 const PIPELINE_STEPS = [
   { id: 'Applied', label: 'Submitted' },
   { id: 'Under Review', label: 'Under Review' },
@@ -46,7 +46,6 @@ export default function ApplicationsPage() {
 
   const isCandidate = user?.role === 'candidate'
 
-  // Active tab state: 'applied' or 'saved'
   const activeTab = searchParams.get('tab') === 'saved' ? 'saved' : 'applied'
 
   const handleTabChange = (tab) => {
@@ -59,16 +58,12 @@ export default function ApplicationsPage() {
     navigate('/login')
   }
 
-  // Real-time search query for applications or saved jobs
   const [searchQuery, setSearchQuery] = useState('')
 
-  // Status filter for applied jobs
   const [statusFilter, setStatusFilter] = useState('All')
 
-  // Withdrawal confirmation dialog state
   const [withdrawTarget, setWithdrawTarget] = useState(null)
 
-  // Candidate applications scoped to logged-in user
   const candidateApplications = useMemo(() => {
     if (isCandidate) {
       const email = user?.email || 'candidate@jobportal.com'
@@ -80,7 +75,6 @@ export default function ApplicationsPage() {
     return liveApplications
   }, [liveApplications, isCandidate, user])
 
-  // Filtered applications based on real-time search & status
   const filteredApplications = useMemo(() => {
     let result = candidateApplications
 
@@ -103,7 +97,6 @@ export default function ApplicationsPage() {
     return result
   }, [candidateApplications, statusFilter, searchQuery])
 
-  // Filtered saved jobs based on search
   const filteredSavedJobs = useMemo(() => {
     if (!searchQuery.trim()) return liveSavedJobs
     const q = searchQuery.toLowerCase().trim()
@@ -115,7 +108,6 @@ export default function ApplicationsPage() {
     )
   }, [liveSavedJobs, searchQuery])
 
-  // Status counts for candidate
   const statusCounts = useMemo(() => {
     const counts = { All: candidateApplications.length }
     candidateApplications.forEach((app) => {
@@ -124,7 +116,6 @@ export default function ApplicationsPage() {
     return counts
   }, [candidateApplications])
 
-  // Confirm and execute withdrawal
   const handleConfirmWithdrawal = () => {
     if (!withdrawTarget) return
     const res = withdrawApplication(withdrawTarget.id)
@@ -136,13 +127,11 @@ export default function ApplicationsPage() {
     setWithdrawTarget(null)
   }
 
-  // Recruiter status advance
   const handleAdvanceStatus = (appId, newStatus) => {
     updateApplicationStatus(appId, newStatus)
     toast.success(`Application status updated to "${newStatus}"!`)
   }
 
-  // 1-Click apply to saved job
   const handleApplyToSavedJob = (savedItem) => {
     const fullJob = liveJobs.find((j) => j.id === savedItem.jobId) || {
       id: savedItem.jobId,
@@ -164,16 +153,14 @@ export default function ApplicationsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col relative overflow-x-hidden selection:bg-cyan-500 selection:text-white">
-      {/* Background ambient lighting */}
+
       <div className="fixed top-0 left-1/4 -translate-x-1/2 w-[600px] h-[600px] bg-blue-100/50 rounded-full blur-[140px] pointer-events-none -z-10" />
       <div className="fixed bottom-0 right-1/4 translate-x-1/2 w-[600px] h-[600px] bg-indigo-100/40 rounded-full blur-[140px] pointer-events-none -z-10" />
 
-      {/* Global Header */}
       <DashboardHeader user={user} onLogout={handleLogout} />
 
-      {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-10 py-8 space-y-6">
-        {/* Page Hero Header */}
+
         <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1.5">
@@ -191,7 +178,6 @@ export default function ApplicationsPage() {
               </p>
             </div>
 
-            {/* Quick Metrics Badges */}
             <div className="flex flex-wrap items-center gap-2 shrink-0">
               <div className="px-4 py-2 rounded-2xl bg-slate-50 border border-slate-200 text-center">
                 <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -214,7 +200,6 @@ export default function ApplicationsPage() {
             </div>
           </div>
 
-          {/* Primary View Tabs */}
           <div className="flex items-center gap-2 mt-6 pt-6 border-t border-slate-100">
             <button
               type="button"
@@ -264,15 +249,12 @@ export default function ApplicationsPage() {
           </div>
         </div>
 
-        {/* ========================================================================= */}
-        {/* TAB 1: APPLIED JOBS VIEW                                                 */}
-        {/* ========================================================================= */}
         {activeTab === 'applied' && (
           <div className="space-y-6">
-            {/* Search & Status Filters Bar */}
+
             <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                {/* Search Applications Input */}
+
                 <div className="relative flex-1 max-w-md">
                   <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
@@ -293,13 +275,11 @@ export default function ApplicationsPage() {
                   )}
                 </div>
 
-                {/* Match Counter */}
                 <span className="text-xs font-semibold text-slate-500 self-center">
                   Showing {filteredApplications.length} of {candidateApplications.length} applications
                 </span>
               </div>
 
-              {/* Status Filter Badges */}
               <div className="flex items-center gap-1.5 overflow-x-auto pt-2 pb-1 text-xs">
                 {['All', 'Applied', 'Under Review', 'Interview Scheduled', 'Shortlisted', 'Rejected'].map(
                   (status) => {
@@ -331,7 +311,6 @@ export default function ApplicationsPage() {
               </div>
             </div>
 
-            {/* Applications List */}
             {filteredApplications.length === 0 ? (
               <div className="bg-white border border-slate-200/90 rounded-3xl p-12 text-center space-y-3 shadow-xs">
                 <FileText className="w-12 h-12 text-slate-300 mx-auto" />
@@ -379,7 +358,6 @@ export default function ApplicationsPage() {
                     Rejected: 'bg-rose-50 text-rose-700 border-rose-200'
                   }
 
-                  // Determine active pipeline stage index (0 to 3)
                   let currentStageIdx = 0
                   if (app.status === 'Under Review') currentStageIdx = 1
                   if (app.status === 'Interview Scheduled' || app.status === 'Shortlisted') currentStageIdx = 2
@@ -390,10 +368,10 @@ export default function ApplicationsPage() {
                       key={app.id}
                       className="bg-white border border-slate-200/90 hover:border-blue-300 rounded-3xl p-6 transition-all shadow-xs hover:shadow-md space-y-5"
                     >
-                      {/* Top Header: Job Details & Status Badge */}
+
                       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                         <div className="flex items-start gap-3.5">
-                          {/* Company Icon */}
+
                           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-slate-100 to-slate-200 border border-slate-200 flex items-center justify-center shrink-0 p-1.5 shadow-2xs">
                             <Building2 className="w-6 h-6 text-slate-700" />
                           </div>
@@ -440,10 +418,19 @@ export default function ApplicationsPage() {
                               <Clock className="w-3 h-3 text-slate-400" />
                               <span>Applied on {app.appliedDate || 'Recent'} &bull; Ref #{app.id.slice(-6)}</span>
                             </p>
+
+                            {!isCandidate && (
+                              <div className="pt-2 flex flex-wrap items-center gap-2">
+                                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-50 border border-cyan-200 text-xs text-cyan-900 font-bold">
+                                  <User className="w-3.5 h-3.5 text-cyan-600" />
+                                  <span>Applicant: {app.candidateName || 'Candidate'}</span>
+                                  <span className="font-normal text-cyan-700">({app.candidateEmail || 'candidate@jobportal.com'})</span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
 
-                        {/* Action Buttons */}
                         <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
                           <Link
                             to={`/jobs/${app.jobId}`}
@@ -464,27 +451,32 @@ export default function ApplicationsPage() {
                               <span>Withdraw</span>
                             </button>
                           ) : (
-                            <div className="flex items-center gap-1">
-                              <button
-                                type="button"
-                                onClick={() => handleAdvanceStatus(app.id, 'Shortlisted')}
-                                className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold cursor-pointer"
+                            <div className="flex items-center gap-2">
+                              <Link
+                                to={`/profile/${app.candidateId || 'usr_cand_01'}`}
+                                className="px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 text-xs font-bold flex items-center gap-1.5 transition-colors shadow-2xs cursor-pointer"
+                                title="Review candidate verified credentials and resume"
                               >
-                                Shortlist
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleAdvanceStatus(app.id, 'Interview Scheduled')}
-                                className="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-semibold cursor-pointer"
+                                <User className="w-3.5 h-3.5 text-purple-600" />
+                                <span>Review Profile & Resume</span>
+                              </Link>
+                              <select
+                                value={app.status}
+                                onChange={(e) => handleAdvanceStatus(app.id, e.target.value)}
+                                className="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-cyan-500 cursor-pointer shadow-2xs"
+                                title="Update candidate pipeline status"
                               >
-                                Interview
-                              </button>
+                                <option value="Applied">Applied</option>
+                                <option value="Under Review">Under Review</option>
+                                <option value="Interview Scheduled">Interview Scheduled</option>
+                                <option value="Shortlisted">Shortlisted</option>
+                                <option value="Rejected">Rejected</option>
+                              </select>
                             </div>
                           )}
                         </div>
                       </div>
 
-                      {/* Visual Pipeline Progress Tracker */}
                       <div className="bg-slate-50/70 border border-slate-200/60 rounded-2xl p-4">
                         <div className="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
                           <span className="flex items-center gap-1.5 text-blue-700">
@@ -496,11 +488,10 @@ export default function ApplicationsPage() {
                           </span>
                         </div>
 
-                        {/* Steps Stepper Bar */}
                         <div className="relative flex items-center justify-between mt-3 px-2">
-                          {/* Background Track */}
+
                           <div className="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-1 bg-slate-200 rounded-full -z-0" />
-                          {/* Active Filled Track */}
+
                           <div
                             className="absolute left-6 top-1/2 -translate-y-1/2 h-1 bg-blue-500 rounded-full transition-all duration-500 -z-0"
                             style={{
@@ -547,12 +538,9 @@ export default function ApplicationsPage() {
           </div>
         )}
 
-        {/* ========================================================================= */}
-        {/* TAB 2: SAVED JOBS VIEW (Candidate)                                       */}
-        {/* ========================================================================= */}
         {activeTab === 'saved' && (
           <div className="space-y-6">
-            {/* Search Saved Jobs */}
+
             <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="relative flex-1 max-w-md">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -579,7 +567,6 @@ export default function ApplicationsPage() {
               </span>
             </div>
 
-            {/* Saved Jobs List */}
             {filteredSavedJobs.length === 0 ? (
               <div className="bg-white border border-slate-200/90 rounded-3xl p-12 text-center space-y-3 shadow-xs">
                 <Bookmark className="w-12 h-12 text-slate-300 mx-auto" />
@@ -666,7 +653,6 @@ export default function ApplicationsPage() {
                         </p>
                       </div>
 
-                      {/* Card Actions */}
                       <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100">
                         <Link
                           to={`/jobs/${item.jobId}`}
@@ -701,9 +687,6 @@ export default function ApplicationsPage() {
         )}
       </main>
 
-      {/* ========================================================================= */}
-      {/* MODAL: WITHDRAW APPLICATION CONFIRMATION (UI ONLY)                        */}
-      {/* ========================================================================= */}
       {withdrawTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl space-y-5">
