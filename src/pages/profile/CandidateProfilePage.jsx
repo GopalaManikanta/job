@@ -2,6 +2,7 @@ import { useState, useMemo, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useAuth } from '../../context/AuthContext'
+import { useDashboard } from '../../context/DashboardContext'
 import DashboardHeader from '../../components/DashboardHeader'
 import {
   User,
@@ -64,9 +65,11 @@ export default function CandidateProfilePage() {
   const { candidateId } = useParams()
   const navigate = useNavigate()
   const { user, logout, getCandidateProfile, saveCandidateProfile } = useAuth()
+  const { metrics = { activeJobPostings: '0', totalApplications: '0', totalCompanies: '0' } } = useDashboard()
 
   const isRecruiter = user?.role === 'recruiter'
   const isViewingOtherCandidate = isRecruiter && candidateId && candidateId !== user?.id
+  const isRecruiterSelfProfile = isRecruiter && !candidateId
 
   // Mode: 'view' | 'edit'
   const [mode, setMode] = useState(isViewingOtherCandidate ? 'view' : 'view')
@@ -433,6 +436,8 @@ export default function CandidateProfilePage() {
                 <span>/</span>
                 <span className="text-slate-900 font-bold">Applicant Review</span>
               </>
+            ) : isRecruiterSelfProfile ? (
+              <span className="text-slate-900 font-bold">Employer & Recruiter Profile</span>
             ) : (
               <span className="text-slate-900 font-bold">Candidate Profile</span>
             )}
@@ -448,6 +453,14 @@ export default function CandidateProfilePage() {
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Back to Requisitions</span>
               </button>
+            ) : isRecruiterSelfProfile ? (
+              <Link
+                to="/jobs"
+                className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md shadow-purple-500/20 flex items-center gap-1.5 transition-all cursor-pointer"
+              >
+                <Briefcase className="w-3.5 h-3.5" />
+                <span>Manage Requisitions</span>
+              </Link>
             ) : (
               <>
                 {mode === 'view' ? (
@@ -516,9 +529,180 @@ export default function CandidateProfilePage() {
         )}
 
         {/* ========================================================= */}
-        {/* MODE 1: VIEW PROFILE MODE                                */}
+        {/* RECRUITER / EMPLOYER PROFILE VIEW                         */}
         {/* ========================================================= */}
-        {mode === 'view' ? (
+        {isRecruiterSelfProfile ? (
+          <div className="space-y-6">
+            {/* 1. Recruiter Hero Banner Card */}
+            <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-purple-100/40 via-pink-50/20 to-transparent rounded-full blur-3xl pointer-events-none" />
+
+              <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+                  <div className="relative">
+                    <img
+                      src={
+                        user?.avatar ||
+                        'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300'
+                      }
+                      alt={user?.name || 'Recruiter'}
+                      className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl object-cover border-4 border-white shadow-md bg-slate-100"
+                    />
+                    <span
+                      className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-purple-600 border-2 border-white flex items-center justify-center shadow-xs"
+                      title="Verified Employer Account"
+                    >
+                      <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
+                    </span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                        {user?.name || 'Priya Menon'}
+                      </h1>
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+                        <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
+                        Verified Employer
+                      </span>
+                    </div>
+
+                    <p className="text-sm font-semibold text-slate-600">
+                      {user?.headline || 'Senior Talent Acquisition Lead'} &bull;{' '}
+                      <span className="text-purple-700 font-bold">{user?.company || 'Apex Cloud Systems'}</span>
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-1">
+                      <span className="flex items-center gap-1 text-slate-600">
+                        <Mail className="w-3.5 h-3.5 text-purple-500" />
+                        <span>{user?.email || 'recruiter@jobportal.com'}</span>
+                      </span>
+                      <span className="flex items-center gap-1 text-slate-600">
+                        <MapPin className="w-3.5 h-3.5 text-purple-500" />
+                        <span>{user?.location || 'Bengaluru, India'}</span>
+                      </span>
+                      <span className="flex items-center gap-1 text-slate-600">
+                        <Building2 className="w-3.5 h-3.5 text-purple-500" />
+                        <span>{user?.company || 'Apex Cloud Systems'}</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+                  <Link
+                    to="/companies"
+                    className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors flex items-center gap-1.5"
+                  >
+                    <Building2 className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Company Directory</span>
+                  </Link>
+                  <Link
+                    to="/jobs"
+                    className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-md shadow-purple-500/20 transition-all flex items-center gap-1.5"
+                  >
+                    <Briefcase className="w-3.5 h-3.5" />
+                    <span>Manage Jobs</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Recruiter Hiring Stats Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center font-bold">
+                  <Briefcase className="w-6 h-6" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Active Job Requisitions
+                  </span>
+                  <span className="text-2xl font-black text-slate-900">{metrics.activeJobPostings}</span>
+                </div>
+              </div>
+
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center font-bold">
+                  <FileText className="w-6 h-6" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Applicant Submissions
+                  </span>
+                  <span className="text-2xl font-black text-slate-900">{metrics.totalApplications}</span>
+                </div>
+              </div>
+
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center font-bold">
+                  <Building2 className="w-6 h-6" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Partner Companies
+                  </span>
+                  <span className="text-2xl font-black text-slate-900">{metrics.totalCompanies}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Recruiter About & Enterprise Management Cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center justify-between">
+                  <span>Talent Acquisition Lead Overview</span>
+                  <Award className="w-4 h-4 text-purple-500" />
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  Overseeing full lifecycle talent acquisition, technical candidate assessments, and cross-functional hiring initiatives for {user?.company || 'Apex Cloud Systems'}. Coordinating hiring manager rounds and driving real-time talent pipeline metrics.
+                </p>
+
+                <div className="pt-2">
+                  <h4 className="text-xs font-bold text-slate-800 mb-2">Hiring Domains & Core Verticals</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {['Cloud & DevOps Architecture', 'AI & Machine Learning', 'React & Frontend Systems', 'Distributed Backend', 'Cybersecurity'].map((dom) => (
+                      <span key={dom} className="px-3 py-1 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 text-xs font-semibold">
+                        {dom}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs space-y-3 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100">
+                    Quick Hiring Shortcuts
+                  </h3>
+                  <div className="space-y-2 mt-3">
+                    <Link
+                      to="/applications"
+                      className="p-3 rounded-xl bg-slate-50 hover:bg-purple-50 hover:border-purple-200 border border-slate-200/80 text-xs font-bold text-slate-700 hover:text-purple-700 transition-colors flex items-center justify-between"
+                    >
+                      <span>Review Candidate Submissions</span>
+                      <span>&rarr;</span>
+                    </Link>
+                    <Link
+                      to="/jobs"
+                      className="p-3 rounded-xl bg-slate-50 hover:bg-purple-50 hover:border-purple-200 border border-slate-200/80 text-xs font-bold text-slate-700 hover:text-purple-700 transition-colors flex items-center justify-between"
+                    >
+                      <span>Post or Edit Job Listings</span>
+                      <span>&rarr;</span>
+                    </Link>
+                    <Link
+                      to="/companies"
+                      className="p-3 rounded-xl bg-slate-50 hover:bg-purple-50 hover:border-purple-200 border border-slate-200/80 text-xs font-bold text-slate-700 hover:text-purple-700 transition-colors flex items-center justify-between"
+                    >
+                      <span>Manage Enterprise Entities</span>
+                      <span>&rarr;</span>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : mode === 'view' ? (
           <div className="space-y-6">
             {/* 1. Header Profile Banner Card */}
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs relative overflow-hidden">

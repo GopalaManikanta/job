@@ -473,7 +473,11 @@ export function DashboardProvider({ children }) {
         company: job.company,
         location: job.location,
         salary: job.salary,
-        savedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        type: job.type || 'Full-time',
+        category: job.category || 'Engineering',
+        skills: Array.isArray(job.skills) ? job.skills : [],
+        savedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        savedDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
       }
       currentSaved = [newItem, ...currentSaved]
       writeStorage(STORAGE_KEYS.SAVED_JOBS, currentSaved)
@@ -481,6 +485,16 @@ export function DashboardProvider({ children }) {
       broadcastSync()
       return { saved: true, message: 'Job bookmarked successfully!' }
     }
+  }, [])
+
+  // Action: Remove job from saved list directly
+  const removeSavedJob = useCallback((jobId) => {
+    let currentSaved = readStorage(STORAGE_KEYS.SAVED_JOBS)
+    const filtered = currentSaved.filter((s) => String(s.jobId) !== String(jobId) && String(s.id) !== String(jobId))
+    writeStorage(STORAGE_KEYS.SAVED_JOBS, filtered)
+    setSavedJobs(filtered)
+    broadcastSync()
+    return { success: true, message: 'Removed from saved jobs.' }
   }, [])
 
   // Action: Update application status (Recruiter)
@@ -611,6 +625,7 @@ export function DashboardProvider({ children }) {
         applyToJob,
         withdrawApplication,
         toggleSaveJob,
+        removeSavedJob,
         updateApplicationStatus,
         refreshDashboard
       }}

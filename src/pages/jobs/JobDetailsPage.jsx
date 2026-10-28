@@ -408,7 +408,7 @@ export default function JobDetailsPage() {
           {/* Left Column: Description, Responsibilities, Skills, Candidate Banner (2 cols) */}
           <div className="lg:col-span-2 space-y-6">
             {/* Candidate Applied Status Banner */}
-            {isApplied && (
+            {isCandidate && isApplied && (
               <div className="bg-emerald-50 border border-emerald-200 rounded-3xl p-5 flex items-start gap-4">
                 <div className="p-2 rounded-2xl bg-emerald-500 text-white shrink-0 shadow-xs">
                   <Check className="w-5 h-5" />

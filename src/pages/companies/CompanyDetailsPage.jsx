@@ -27,7 +27,8 @@ import {
   PlusCircle,
   Award,
   HeartHandshake,
-  Zap
+  Zap,
+  Share2
 } from 'lucide-react'
 
 import DashboardHeader from '../../components/DashboardHeader'
@@ -38,6 +39,7 @@ export default function CompanyDetailsPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user, logout } = useAuth()
+  const isCandidate = user?.role === 'candidate'
   const { getCompanyById, editCompany, deleteCompany, fetchSingleCompany } = useCompanies()
   const { jobs, applications, applyToJob, addJob } = useDashboard()
 
@@ -277,38 +279,50 @@ export default function CompanyDetailsPage() {
 
             {/* Right: Actions */}
             <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-              <button
-                type="button"
-                onClick={() => {
-                  setNewJobData((prev) => ({
-                    ...prev,
-                    location: company?.location || 'Hybrid - Bengaluru'
-                  }))
-                  setShowPostJobModal(true)
-                }}
-                className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold shadow-xs hover:shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
-              >
-                <PlusCircle className="w-3.5 h-3.5" />
-                <span>Post Job</span>
-              </button>
+              {!isCandidate ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setShowPostJobModal(true)}
+                    className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold shadow-xs hover:shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <PlusCircle className="w-3.5 h-3.5" />
+                    <span>Post Job</span>
+                  </button>
 
-              <button
-                type="button"
-                onClick={() => setIsEditModalOpen(true)}
-                className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 shadow-xs hover:border-slate-300 transition-all flex items-center gap-1.5 cursor-pointer"
-              >
-                <Edit3 className="w-3.5 h-3.5 text-cyan-600" />
-                <span>Edit Profile</span>
-              </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 shadow-xs hover:border-slate-300 transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Edit3 className="w-3.5 h-3.5 text-cyan-600" />
+                    <span>Edit Profile</span>
+                  </button>
 
-              <button
-                type="button"
-                onClick={() => setShowDeleteConfirm(true)}
-                className="px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-xs font-bold text-rose-600 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>Delete</span>
-              </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-xs font-bold text-rose-600 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete</span>
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (navigator.clipboard) {
+                      navigator.clipboard.writeText(window.location.href)
+                      toast.success('Company profile link copied to clipboard!')
+                    }
+                  }}
+                  className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 shadow-xs flex items-center gap-1.5 cursor-pointer transition-all"
+                >
+                  <Share2 className="w-3.5 h-3.5 text-cyan-600" />
+                  <span>Share Company</span>
+                </button>
+              )}
             </div>
           </div>
 

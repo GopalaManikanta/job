@@ -14,6 +14,7 @@ import CompaniesPage from './pages/companies/CompaniesPage'
 import CompanyDetailsPage from './pages/companies/CompanyDetailsPage'
 import JobsPage from './pages/jobs/JobsPage'
 import JobDetailsPage from './pages/jobs/JobDetailsPage'
+import ApplicationsPage from './pages/jobs/ApplicationsPage'
 import CandidateProfilePage from './pages/profile/CandidateProfilePage'
 
 export default function App() {
@@ -50,6 +51,22 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <JobDetailsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/applications"
+                element={
+                  <ProtectedRoute>
+                    <ApplicationsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/saved-jobs"
+                element={
+                  <ProtectedRoute>
+                    <ApplicationsPage />
                   </ProtectedRoute>
                 }
               />

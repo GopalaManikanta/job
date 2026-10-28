@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
   Briefcase,
@@ -11,15 +11,29 @@ import {
   Inbox,
   LayoutDashboard,
   Building2,
-  User
+  User,
+  Send
 } from 'lucide-react'
 import { toast } from 'react-toastify'
+import { useDashboard } from '../context/DashboardContext'
 
 export default function DashboardHeader({ user, onLogout }) {
   const location = useLocation()
   const [searchQuery, setSearchQuery] = useState('')
   const [showNotifications, setShowNotifications] = useState(false)
   const isCandidate = user?.role === 'candidate'
+
+  const { applications = [] } = useDashboard()
+  const candidateApplications = useMemo(() => {
+    if (isCandidate) {
+      const email = user?.email || 'candidate@jobportal.com'
+      const id = user?.id || 'usr_cand_01'
+      return applications.filter(
+        (a) => a.candidateEmail === email || a.candidateId === id
+      )
+    }
+    return applications
+  }, [applications, isCandidate, user])
 
   // Initial stage starts with 0 notifications
   const [notifications, setNotifications] = useState([])
@@ -105,6 +119,23 @@ export default function DashboardHeader({ user, onLogout }) {
           >
             <Building2 className="w-3.5 h-3.5 text-cyan-600" />
             <span>Companies</span>
+          </Link>
+
+          <Link
+            to="/applications"
+            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
+              location.pathname.startsWith('/applications') || location.pathname.startsWith('/saved-jobs')
+                ? 'bg-white text-cyan-700 shadow-xs'
+                : 'text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <Send className="w-3.5 h-3.5 text-cyan-600" />
+            <span>Applications</span>
+            {candidateApplications.length > 0 && (
+              <span className="ml-0.5 px-1.5 py-0.2 text-[10px] rounded-full bg-cyan-100 text-cyan-800 font-extrabold">
+                {candidateApplications.length}
+              </span>
+            )}
           </Link>
 
           <Link

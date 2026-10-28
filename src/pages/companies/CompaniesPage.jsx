@@ -22,7 +22,8 @@ import {
   LayoutGrid,
   ListFilter,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Briefcase
 } from 'lucide-react'
 
 import DashboardHeader from '../../components/DashboardHeader'
@@ -48,6 +49,7 @@ const ITEMS_PER_PAGE = 6
 export default function CompaniesPage() {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
+  const isCandidate = user?.role === 'candidate'
   const {
     companies,
     loading,
@@ -241,14 +243,24 @@ export default function CompaniesPage() {
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-cyan-600' : ''}`} />
             </button>
 
-            <button
-              type="button"
-              onClick={handleOpenAdd}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs shadow-md shadow-cyan-500/20 flex items-center gap-2 transition-all cursor-pointer transform hover:scale-[1.02]"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>Add Company</span>
-            </button>
+            {!isCandidate ? (
+              <button
+                type="button"
+                onClick={handleOpenAdd}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs shadow-md shadow-cyan-500/20 flex items-center gap-2 transition-all cursor-pointer transform hover:scale-[1.02]"
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span>Add Company</span>
+              </button>
+            ) : (
+              <Link
+                to="/jobs"
+                className="px-4 py-2.5 rounded-xl bg-cyan-50 hover:bg-cyan-100/80 border border-cyan-200 text-cyan-700 font-bold text-xs shadow-2xs flex items-center gap-2 transition-all cursor-pointer"
+              >
+                <Briefcase className="w-4 h-4 text-cyan-600" />
+                <span>View Job Openings</span>
+              </Link>
+            )}
           </div>
         </div>
 
@@ -511,22 +523,26 @@ export default function CompaniesPage() {
                   </Link>
 
                   <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenEdit(company)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-600 hover:bg-cyan-50 transition-colors cursor-pointer"
-                      title="Edit Company"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDeleteCandidate(company)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                      title="Delete Company"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {!isCandidate && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEdit(company)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-600 hover:bg-cyan-50 transition-colors cursor-pointer"
+                          title="Edit Company"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDeleteCandidate(company)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                          title="Delete Company"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -597,22 +613,26 @@ export default function CompaniesPage() {
                           >
                             <Eye className="w-3.5 h-3.5" />
                           </Link>
-                          <button
-                            type="button"
-                            onClick={() => handleOpenEdit(company)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-600 hover:bg-cyan-50 transition-colors cursor-pointer"
-                            title="Edit"
-                          >
-                            <Edit3 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setDeleteCandidate(company)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                            title="Delete"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          {!isCandidate && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEdit(company)}
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-600 hover:bg-cyan-50 transition-colors cursor-pointer"
+                                title="Edit"
+                              >
+                                <Edit3 className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setDeleteCandidate(company)}
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                                title="Delete"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
